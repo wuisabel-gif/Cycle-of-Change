@@ -530,6 +530,67 @@
     .prediction-page { display: none; animation: pageIn 0.3s ease; }
     .prediction-page.active { display: block; }
 
+    /* Wu Xing — five element compass */
+    .element-compass {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      margin: 6px auto 16px;
+    }
+    .wx-ring {
+      position: absolute;
+      inset: 14px;
+      border-radius: 50%;
+      border: 1px dashed rgba(138, 32, 27, 0.35);
+    }
+    .wx-node {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 44px;
+      height: 44px;
+      margin: -22px 0 0 -22px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-family: "Ma Shan Zheng", serif;
+      font-size: 1.3rem;
+      color: #fffdf7;
+      border: 2px solid rgba(255, 253, 247, 0.7);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .wx-node.active {
+      transform: scale(1.28);
+      box-shadow: 0 0 0 3px rgba(201, 162, 75, 0.6), 0 6px 16px rgba(0, 0, 0, 0.4);
+      z-index: 2;
+    }
+    .wx-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      width: 96px;
+    }
+    .wx-center .wx-hz {
+      font-family: "Ma Shan Zheng", serif;
+      font-size: 1.9rem;
+      color: var(--cinnabar-deep);
+      line-height: 1;
+    }
+    .wx-center .wx-sub { font-size: 0.7rem; color: var(--muted); letter-spacing: 0.05em; }
+
+    .swatch {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      border: 1px solid rgba(0, 0, 0, 0.25);
+      margin-right: 6px;
+      vertical-align: -2px;
+    }
+
     .extras-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(120px, 1fr));
@@ -654,6 +715,13 @@
           </section>
 
           <section class="prediction-page" id="page2">
+            <div class="element-compass" id="elementCompass" aria-hidden="true">
+              <div class="wx-ring"></div>
+              <div class="wx-center">
+                <div class="wx-hz" id="wxCenterHz">五</div>
+                <div class="wx-sub" id="wxCenterSub">行 Wu Xing</div>
+              </div>
+            </div>
             <section class="extras-grid">
               <div class="extra">
                 <h3>Lucky Number 數</h3>
@@ -810,9 +878,30 @@
     const baguaRing = document.getElementById("baguaRing");
     const trigramRow = document.getElementById("trigramRow");
     const coinTray = document.getElementById("coinTray");
+    const elementCompass = document.getElementById("elementCompass");
+    const wxCenterHz = document.getElementById("wxCenterHz");
+    const wxCenterSub = document.getElementById("wxCenterSub");
 
-    const luckyColors = ["Amber", "Jade", "Ocean Blue", "Slate", "Crimson", "Gold", "Moss", "Pearl"];
+    const luckyColors = [
+      { en: "Amber", hz: "琥珀", hex: "#c8862b" },
+      { en: "Jade", hz: "翡翠", hex: "#2e8b6f" },
+      { en: "Ocean Blue", hz: "黛青", hex: "#2f4f6b" },
+      { en: "Slate", hz: "黛灰", hex: "#5b5f63" },
+      { en: "Crimson", hz: "朱紅", hex: "#b3322c" },
+      { en: "Gold", hz: "金黃", hex: "#c9a24b" },
+      { en: "Moss", hz: "苔綠", hex: "#6b7a3a" },
+      { en: "Pearl", hz: "珍珠", hex: "#ece3d2" }
+    ];
     const elements = ["Wood", "Fire", "Earth", "Metal", "Water"];
+
+    // Wu Xing — the five phases, with element color, direction and season.
+    const elementData = {
+      Wood: { hz: "木", hex: "#4a7c3f", dir: "East", season: "Spring" },
+      Fire: { hz: "火", hex: "#b3322c", dir: "South", season: "Summer" },
+      Earth: { hz: "土", hex: "#c9a24b", dir: "Center", season: "Late Summer" },
+      Metal: { hz: "金", hex: "#b9aa7a", dir: "West", season: "Autumn" },
+      Water: { hz: "水", hex: "#2f4f6b", dir: "North", season: "Winter" }
+    };
     const timeBlocks = [
       "05:00-07:00",
       "07:00-09:00",
@@ -857,6 +946,9 @@
     // The eight trigrams arranged around the bagua ring (decorative).
     const baguaGlyphs = ["☰", "☱", "☲", "☳", "☴", "☵", "☶", "☷"];
     renderBaguaRing();
+
+    const wxNodes = {};
+    renderElementCompass();
 
     const todayISO = new Date().toISOString().slice(0, 10);
     todayInput.value = todayISO;
@@ -944,8 +1036,11 @@
       interpretationText.textContent = `"${line}"`;
       reflectionText.textContent = `Reflection: ${reflection}`;
       luckyNumberText.textContent = String(luckyNumber);
-      luckyColorText.textContent = luckyColor;
-      elementText.textContent = activeElement;
+      luckyColorText.innerHTML =
+        `<span class="swatch" style="background:${luckyColor.hex}"></span>${luckyColor.hz} ${luckyColor.en}`;
+      const elData = elementData[activeElement];
+      elementText.textContent = `${elData.hz} ${activeElement} · ${elData.dir}`;
+      setActiveElement(activeElement);
       timeBlockText.textContent = bestTimeBlock;
       actionCueText.textContent = `Action cue: ${actionCue}`;
       avoidCueText.textContent = `Avoid pattern: ${avoidCue}`;
@@ -969,8 +1064,8 @@
         interpretation: line,
         reflection,
         luckyNumber,
-        luckyColor,
-        activeElement,
+        luckyColor: `${luckyColor.hz} ${luckyColor.en}`,
+        activeElement: `${elData.hz} ${activeElement} (${elData.dir})`,
         bestTimeBlock,
         actionCue,
         avoidCue
@@ -1098,6 +1193,37 @@
           </div>
         </div>`;
       trigramRow.innerHTML = card("上卦 Upper", upper) + card("下卦 Lower", lower);
+    }
+
+    function renderElementCompass() {
+      const radius = 78;
+      elements.forEach((name, idx) => {
+        const data = elementData[name];
+        const node = document.createElement("div");
+        node.className = "wx-node";
+        node.textContent = data.hz;
+        node.style.background = data.hex;
+        const angle = (idx / elements.length) * Math.PI * 2 - Math.PI / 2;
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
+        node.style.transform = `translate(${x}px, ${y}px)`;
+        node.dataset.baseTransform = node.style.transform;
+        elementCompass.appendChild(node);
+        wxNodes[name] = node;
+      });
+    }
+
+    function setActiveElement(name) {
+      const data = elementData[name];
+      Object.entries(wxNodes).forEach(([key, node]) => {
+        const active = key === name;
+        node.classList.toggle("active", active);
+        node.style.transform = active
+          ? `${node.dataset.baseTransform} scale(1.28)`
+          : node.dataset.baseTransform;
+      });
+      wxCenterHz.textContent = data.hz;
+      wxCenterSub.textContent = `${name} · ${data.dir}`;
     }
 
     function playCoinToss() {
