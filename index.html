@@ -104,6 +104,36 @@
       border: 1px solid rgba(120, 86, 40, 0.4);
       box-shadow: var(--card-shadow);
       overflow: hidden;
+      transform-origin: top center;
+      animation: unfurl 1.25s cubic-bezier(0.22, 0.8, 0.2, 1) both;
+    }
+
+    /* The scroll unrolls downward like a sheet of paper opening on load. */
+    @keyframes unfurl {
+      0% { clip-path: inset(0 0 100% 0); opacity: 0.45; }
+      60% { opacity: 1; }
+      100% { clip-path: inset(0 0 0 0); opacity: 1; }
+    }
+
+    /* The lower rod rides down with the unrolling edge. */
+    .rod.bottom { animation: rodDrop 1.25s cubic-bezier(0.22, 0.8, 0.2, 1) both; }
+    @keyframes rodDrop {
+      0% { transform: translateY(-180px); opacity: 0; }
+      30% { opacity: 1; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+
+    /* Inner content settles in just after the paper opens. */
+    .hero, .grid > .panel {
+      animation: settleIn 0.8s ease 0.5s both;
+    }
+    @keyframes settleIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .app, .rod.bottom, .hero, .grid > .panel { animation: none; }
     }
 
     /* Decorative inner frame line */
@@ -598,9 +628,6 @@
       margin: 6px 0 14px;
     }
 
-    #actionCueText, #avoidCueText { font-size: 0.96rem; }
-    #avoidCueText { color: var(--cinnabar-deep); }
-
     @keyframes pageIn {
       from { opacity: 0; transform: translateY(6px); }
       to { opacity: 1; transform: translateY(0); }
@@ -740,15 +767,13 @@
                 <p id="timeBlockText">-</p>
               </div>
             </section>
-            <p id="actionCueText"></p>
-            <p id="avoidCueText"></p>
           </section>
 
           <p class="disclaimer">This tool is for pattern-based reflection, not prediction or factual claims.</p>
         </article>
       </section>
     </main>
-    <div class="rod" aria-hidden="true"></div>
+    <div class="rod bottom" aria-hidden="true"></div>
   </div>
 
   <script>
@@ -873,8 +898,6 @@
     const luckyColorText = document.getElementById("luckyColorText");
     const elementText = document.getElementById("elementText");
     const timeBlockText = document.getElementById("timeBlockText");
-    const actionCueText = document.getElementById("actionCueText");
-    const avoidCueText = document.getElementById("avoidCueText");
     const baguaRing = document.getElementById("baguaRing");
     const trigramRow = document.getElementById("trigramRow");
     const coinTray = document.getElementById("coinTray");
@@ -913,23 +936,6 @@
       "19:00-21:00",
       "21:00-23:00"
     ];
-    const actionCues = [
-      "Complete one difficult task first.",
-      "Start a conversation you have delayed.",
-      "Tidy one system that supports your week.",
-      "Draft before you optimize details.",
-      "Commit to one clear boundary today.",
-      "Use a short walk to reset your focus."
-    ];
-    const avoidCues = [
-      "Avoid rushing decisions in the first hour.",
-      "Avoid saying yes without checking bandwidth.",
-      "Avoid overexplaining what is already clear.",
-      "Avoid multitasking during key work blocks.",
-      "Avoid forcing outcomes that need patience.",
-      "Avoid reacting before collecting full context."
-    ];
-
     // The eight trigrams (bagua), keyed by 3 bits: bottom*4 + middle*2 + top (yang = 1).
     // Each carries its glyph, name, attribute, five-element phase and fengshui direction.
     const trigrams = {
@@ -1045,8 +1051,6 @@
       const luckyColor = luckyColors[(hexNumber + todayNumber) % luckyColors.length];
       const activeElement = elements[(lifeNumber + hexNumber) % elements.length];
       const bestTimeBlock = timeBlocks[(todayNumber + Math.abs(momentumIndex)) % timeBlocks.length];
-      const actionCue = actionCues[(hexNumber + lifeNumber) % actionCues.length];
-      const avoidCue = avoidCues[(todayNumber + yinCount) % avoidCues.length];
 
       const { upper, lower } = deriveTrigrams(displayLines);
 
@@ -1068,8 +1072,6 @@
       elementText.textContent = `${elData.hz} ${activeElement} · ${elData.dir}`;
       setActiveElement(activeElement);
       timeBlockText.textContent = bestTimeBlock;
-      actionCueText.textContent = `Action cue: ${actionCue}`;
-      avoidCueText.textContent = `Avoid pattern: ${avoidCue}`;
       setPredictionPage(1);
 
       state.lastResult = {
@@ -1092,9 +1094,7 @@
         luckyNumber,
         luckyColor: `${luckyColor.hz} ${luckyColor.en}`,
         activeElement: `${elData.hz} ${activeElement} (${elData.dir})`,
-        bestTimeBlock,
-        actionCue,
-        avoidCue
+        bestTimeBlock
       };
 
       updateStreakOnCast(today);
@@ -1120,8 +1120,6 @@
         `Lucky Color: ${r.luckyColor}`,
         `Active Element: ${r.activeElement}`,
         `Best Time Block: ${r.bestTimeBlock}`,
-        `Action Cue: ${r.actionCue}`,
-        `Avoid Pattern: ${r.avoidCue}`,
         `Interpretation: ${r.interpretation}`,
         `Reflection: ${r.reflection}`
       ].join("\n");
