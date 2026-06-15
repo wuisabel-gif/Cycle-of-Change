@@ -387,6 +387,54 @@
       opacity: 0.78;
     }
 
+    /* Three-coin casting ritual overlay */
+    .coin-tray {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .coin-tray.casting { opacity: 1; }
+    .coin {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 38% 32%, #f3d98c, var(--gold) 52%, #946c1f);
+      border: 2px solid #7d5a1a;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35), inset 0 0 6px rgba(255, 245, 210, 0.6);
+      position: relative;
+      transform-style: preserve-3d;
+    }
+    .coin::after {
+      content: "";
+      position: absolute;
+      width: 15px;
+      height: 15px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--paper);
+      border: 1px solid #7d5a1a;
+      border-radius: 2px;
+    }
+    .coin-tray.casting .coin { animation: toss 0.5s ease-in-out 3; }
+    .coin-tray.casting .coin:nth-child(2) { animation-delay: 0.08s; }
+    .coin-tray.casting .coin:nth-child(3) { animation-delay: 0.16s; }
+    @keyframes toss {
+      0% { transform: translateY(0) rotateX(0); }
+      50% { transform: translateY(-26px) rotateX(540deg); }
+      100% { transform: translateY(0) rotateX(1080deg); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .coin-tray.casting .coin { animation: none; }
+    }
+
     .hexagram {
       position: relative;
       z-index: 2;
@@ -568,6 +616,11 @@
           <section class="prediction-page active" id="page1">
             <div class="hex-stage">
               <div class="bagua-ring" id="baguaRing" aria-hidden="true"></div>
+              <div class="coin-tray" id="coinTray" aria-hidden="true">
+                <div class="coin"></div>
+                <div class="coin"></div>
+                <div class="coin"></div>
+              </div>
               <div class="hexagram" id="hexagramCanvas"></div>
             </div>
 
@@ -756,6 +809,7 @@
     const avoidCueText = document.getElementById("avoidCueText");
     const baguaRing = document.getElementById("baguaRing");
     const trigramRow = document.getElementById("trigramRow");
+    const coinTray = document.getElementById("coinTray");
 
     const luckyColors = ["Amber", "Jade", "Ocean Blue", "Slate", "Crimson", "Gold", "Moss", "Pearl"];
     const elements = ["Wood", "Fire", "Earth", "Metal", "Water"];
@@ -878,6 +932,7 @@
 
       const { upper, lower } = deriveTrigrams(displayLines);
 
+      playCoinToss();
       renderHexagram(displayLines, changeLine);
       renderTrigrams(upper, lower);
       hexHanzi.textContent = `${meta.hz} · ${meta.py}`;
@@ -1043,6 +1098,14 @@
           </div>
         </div>`;
       trigramRow.innerHTML = card("上卦 Upper", upper) + card("下卦 Lower", lower);
+    }
+
+    function playCoinToss() {
+      coinTray.classList.remove("casting");
+      // Force reflow so the animation restarts on every cast.
+      void coinTray.offsetWidth;
+      coinTray.classList.add("casting");
+      setTimeout(() => coinTray.classList.remove("casting"), 850);
     }
 
     function renderBaguaRing() {
