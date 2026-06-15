@@ -3,93 +3,242 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cycle of Change</title>
+  <title>易 · Cycle of Change</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;600;700;900&family=Cinzel:wght@500;600&display=swap"
+    rel="stylesheet"
+  />
   <style>
     :root {
-      --bg: #f4efe3;
-      --panel: #fffaf0;
-      --ink: #1e1b18;
-      --muted: #655d54;
-      --accent: #a8582c;
-      --accent-2: #3f6c61;
-      --line: #24201b;
-      --card-shadow: 0 12px 30px rgba(25, 16, 7, 0.12);
+      --paper: #efe6d2;
+      --paper-2: #e6d8ba;
+      --paper-deep: #d8c69e;
+      --ink: #201a14;
+      --ink-soft: #4c4034;
+      --muted: #6d6051;
+      --cinnabar: #b3322c;
+      --cinnabar-deep: #8a201b;
+      --seal: #a8261f;
+      --gold: #c9a24b;
+      --gold-soft: #e0c585;
+      --jade: #3f6c61;
+      --line: #1c1610;
+      --rod: linear-gradient(180deg, #5a4a32, #2e2418 60%, #1c150d);
+      --card-shadow: 0 26px 60px rgba(36, 20, 6, 0.34);
     }
 
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      font-family: "Avenir Next", "Trebuchet MS", sans-serif;
+      font-family: "Noto Serif SC", "Songti SC", Georgia, serif;
       color: var(--ink);
-      background:
-        radial-gradient(circle at 15% 20%, rgba(168, 88, 44, 0.08), transparent 36%),
-        radial-gradient(circle at 85% 70%, rgba(63, 108, 97, 0.08), transparent 32%),
-        var(--bg);
       min-height: 100vh;
+      padding: 38px 20px 56px;
       display: grid;
       place-items: center;
-      padding: 24px;
+      background-color: #2a1d12;
+      background-image:
+        radial-gradient(1100px 760px at 50% -8%, rgba(201, 162, 75, 0.16), transparent 60%),
+        radial-gradient(900px 620px at 12% 108%, rgba(179, 50, 44, 0.16), transparent 58%),
+        radial-gradient(circle at 50% 42%, rgba(0, 0, 0, 0) 38%, rgba(0, 0, 0, 0.42) 100%),
+        repeating-radial-gradient(circle at 50% 50%, rgba(255, 240, 210, 0.022) 0 2px, transparent 2px 5px),
+        linear-gradient(160deg, #36261a, #20160d 60%, #160f08);
     }
 
+    /* Faint floating cloud motifs */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        radial-gradient(60px 26px at 18% 24%, rgba(224, 197, 133, 0.05), transparent 70%),
+        radial-gradient(80px 30px at 82% 70%, rgba(224, 197, 133, 0.045), transparent 70%),
+        radial-gradient(50px 22px at 70% 16%, rgba(224, 197, 133, 0.04), transparent 70%);
+      z-index: 0;
+    }
+
+    .scroll {
+      position: relative;
+      width: min(900px, 100%);
+      z-index: 1;
+    }
+
+    /* Wooden scroll rods top and bottom */
+    .rod {
+      height: 22px;
+      margin: 0 -14px;
+      border-radius: 12px;
+      background: var(--rod);
+      box-shadow: inset 0 1px 0 rgba(255, 226, 170, 0.25),
+        inset 0 -3px 6px rgba(0, 0, 0, 0.5),
+        0 10px 22px rgba(0, 0, 0, 0.4);
+      position: relative;
+    }
+    .rod::before,
+    .rod::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 16px;
+      height: 32px;
+      transform: translateY(-50%);
+      border-radius: 8px;
+      background: radial-gradient(circle at 40% 35%, var(--gold-soft), var(--gold) 45%, #8a6a26);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45);
+    }
+    .rod::before { left: -20px; }
+    .rod::after { right: -20px; }
+
     .app {
-      width: min(860px, 100%);
-      background: linear-gradient(155deg, #fffaf0, #f6f0e7);
-      border: 1px solid #d8ccbb;
-      border-radius: 18px;
+      position: relative;
+      background-color: var(--paper);
+      background-image:
+        radial-gradient(circle at 18% 16%, rgba(179, 50, 44, 0.07), transparent 34%),
+        radial-gradient(circle at 84% 84%, rgba(63, 108, 97, 0.08), transparent 34%),
+        repeating-linear-gradient(45deg, rgba(120, 90, 40, 0.018) 0 7px, transparent 7px 14px),
+        linear-gradient(160deg, #f3ead7, #e8dabd 70%, #ddcca4);
+      border: 1px solid rgba(120, 86, 40, 0.4);
       box-shadow: var(--card-shadow);
       overflow: hidden;
     }
 
+    /* Decorative inner frame line */
+    .app::after {
+      content: "";
+      position: absolute;
+      inset: 12px;
+      border: 1px solid rgba(138, 32, 27, 0.28);
+      pointer-events: none;
+      border-radius: 2px;
+    }
+
     .hero {
-      padding: 26px 28px 10px;
-      border-bottom: 1px solid #ddcfbb;
-      background: linear-gradient(180deg, rgba(201, 173, 128, 0.18), rgba(255, 255, 255, 0));
+      position: relative;
+      padding: 30px 30px 22px;
+      border-bottom: 1px solid rgba(138, 32, 27, 0.22);
+      text-align: center;
+    }
+
+    .taiji {
+      width: 76px;
+      height: 76px;
+      display: block;
+      margin: 0 auto 10px;
+      animation: spin 26s linear infinite;
+      filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.25));
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) { .taiji { animation: none; } }
+
+    .hanzi-title {
+      font-family: "Ma Shan Zheng", "Noto Serif SC", serif;
+      font-size: clamp(2.4rem, 7vw, 3.6rem);
+      color: var(--cinnabar-deep);
+      letter-spacing: 0.3em;
+      margin: 0;
+      line-height: 1;
+      text-shadow: 0 2px 0 rgba(255, 255, 255, 0.4);
     }
 
     h1 {
-      margin: 0;
-      letter-spacing: 0.02em;
-      font-size: clamp(1.5rem, 2.5vw, 2.1rem);
-      font-family: Georgia, "Times New Roman", serif;
+      margin: 8px 0 0;
+      font-family: "Cinzel", Georgia, serif;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-size: clamp(1rem, 2.4vw, 1.35rem);
+      color: var(--ink);
     }
 
     .subtitle {
-      margin: 8px 0 0;
+      margin: 8px auto 0;
+      max-width: 60ch;
       color: var(--muted);
-      font-size: 0.95rem;
+      font-size: 0.92rem;
+      line-height: 1.5;
     }
+
+    /* Vermilion seal stamp */
+    .seal {
+      position: absolute;
+      top: 22px;
+      right: 24px;
+      width: 58px;
+      height: 58px;
+      border: 2.5px solid var(--seal);
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      transform: rotate(-7deg);
+      color: var(--seal);
+      font-family: "Ma Shan Zheng", serif;
+      font-size: 1.7rem;
+      line-height: 1;
+      opacity: 0.92;
+      box-shadow: inset 0 0 0 3px rgba(168, 38, 31, 0.18);
+    }
+    @media (max-width: 560px) { .seal { display: none; } }
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 18px;
-      padding: 20px 20px 24px;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      padding: 24px 22px 28px;
     }
 
     .panel {
-      background: var(--panel);
-      border: 1px solid #decfb8;
-      border-radius: 14px;
-      padding: 16px;
+      position: relative;
+      background: linear-gradient(180deg, #fffdf6, #f6ecd6);
+      border: 1px solid rgba(138, 32, 27, 0.24);
+      border-radius: 8px;
+      padding: 20px 18px;
+      box-shadow: 0 8px 22px rgba(60, 36, 10, 0.1);
+    }
+
+    .panel-label {
+      font-family: "Ma Shan Zheng", serif;
+      color: var(--cinnabar);
+      font-size: 1.15rem;
+      letter-spacing: 0.12em;
+      margin: -2px 0 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .panel-label::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, rgba(138, 32, 27, 0.4), transparent);
     }
 
     label {
       display: block;
-      font-size: 0.88rem;
+      font-size: 0.82rem;
       color: var(--muted);
+      letter-spacing: 0.05em;
       margin-bottom: 6px;
     }
 
     input[type="date"] {
       width: 100%;
       padding: 11px 12px;
-      border: 1px solid #bead94;
-      border-radius: 10px;
+      border: 1px solid var(--paper-deep);
+      border-radius: 8px;
       font: inherit;
       color: var(--ink);
-      background: #fff;
-      margin-bottom: 12px;
+      background: #fffefa;
+      margin-bottom: 14px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    input[type="date"]:focus {
+      outline: none;
+      border-color: var(--cinnabar);
+      box-shadow: 0 0 0 3px rgba(179, 50, 44, 0.14);
     }
 
     .button-row {
@@ -99,283 +248,348 @@
     }
 
     button {
-      border: 0;
-      border-radius: 10px;
-      padding: 10px 14px;
+      border: 1px solid var(--cinnabar-deep);
+      border-radius: 8px;
+      padding: 11px 18px;
       font: inherit;
+      font-weight: 600;
+      letter-spacing: 0.06em;
       cursor: pointer;
-      background: var(--accent);
-      color: #fff;
-      transition: transform 0.15s ease, opacity 0.2s ease;
+      background: linear-gradient(180deg, var(--cinnabar), var(--cinnabar-deep));
+      color: #fdf3e2;
+      box-shadow: 0 5px 14px rgba(138, 32, 27, 0.3);
+      transition: transform 0.14s ease, box-shadow 0.2s ease, opacity 0.2s ease;
     }
-
     button.secondary {
-      background: var(--accent-2);
+      background: linear-gradient(180deg, #4d7a6e, var(--jade));
+      border-color: #2c5046;
+      box-shadow: 0 5px 14px rgba(40, 70, 60, 0.28);
     }
-
-    button:hover { transform: translateY(-1px); }
-    button:active { transform: translateY(1px); }
+    button:hover { transform: translateY(-2px); box-shadow: 0 9px 20px rgba(138, 32, 27, 0.34); }
+    button:active { transform: translateY(0); }
+    button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
     .meta {
-      margin-top: 10px;
+      margin-top: 14px;
       color: var(--muted);
       font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
+    .meta::before { content: "☯"; color: var(--cinnabar); }
 
     .metrics {
       display: grid;
       grid-template-columns: repeat(2, minmax(120px, 1fr));
       gap: 10px;
-      margin: 14px 0;
+      margin: 16px 0;
     }
 
-    .metric {
-      background: #fff;
-      border: 1px solid #e3d7c6;
-      border-radius: 10px;
-      padding: 10px;
+    .metric, .extra {
+      background: linear-gradient(180deg, #fffdf7, #f4e9d2);
+      border: 1px solid rgba(138, 32, 27, 0.18);
+      border-radius: 8px;
+      padding: 11px 12px;
+      position: relative;
+      overflow: hidden;
+    }
+    .metric::before, .extra::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: linear-gradient(180deg, var(--gold), var(--cinnabar));
     }
 
-    .metric h3 {
+    .metric h3, .extra h3 {
       margin: 0;
-      font-size: 0.79rem;
+      font-size: 0.74rem;
       color: var(--muted);
       font-weight: 500;
+      letter-spacing: 0.04em;
+    }
+    .metric p, .extra p {
+      margin: 4px 0 0;
+      font-size: 1.06rem;
+      font-weight: 700;
+      color: var(--ink);
     }
 
-    .metric p {
-      margin: 4px 0 0;
-      font-size: 1.08rem;
-      font-weight: 600;
+    /* Hexagram inside a bagua ring */
+    .hex-stage {
+      position: relative;
+      display: grid;
+      place-items: center;
+      margin: 6px auto 4px;
+      width: 268px;
+      height: 268px;
+    }
+
+    .bagua-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 1px solid rgba(138, 32, 27, 0.3);
+      box-shadow: inset 0 0 0 8px rgba(255, 253, 246, 0.45),
+        inset 0 0 0 9px rgba(201, 162, 75, 0.4);
+      background:
+        radial-gradient(circle at 50% 50%, rgba(255, 253, 246, 0.65), rgba(244, 233, 210, 0.5));
+      animation: spinSlow 90s linear infinite;
+    }
+    @keyframes spinSlow { to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) { .bagua-ring { animation: none; } }
+
+    .bagua-glyph {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      font-size: 1.15rem;
+      color: var(--cinnabar-deep);
+      transform-origin: 0 0;
+      opacity: 0.78;
     }
 
     .hexagram {
-      margin-top: 8px;
-      min-height: 186px;
+      position: relative;
+      z-index: 2;
       display: grid;
-      gap: 10px;
+      gap: 11px;
       align-content: center;
       justify-content: center;
-      padding: 10px;
-      background: linear-gradient(180deg, #fffdf8, #f9f2e7);
-      border: 1px solid #e4d8c6;
-      border-radius: 12px;
+      padding: 16px;
     }
 
     .hex-line {
       position: relative;
-      width: 180px;
-      height: 16px;
-      transition: transform 0.3s ease, opacity 0.3s ease;
-      transform-origin: center;
+      width: 156px;
+      height: 15px;
+      transition: transform 0.35s ease, opacity 0.35s ease;
       opacity: 0;
-      transform: translateY(6px);
+      transform: translateY(8px);
     }
+    .hex-line.show { opacity: 1; transform: translateY(0); }
 
-    .hex-line.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .solid,
-    .broken-left,
-    .broken-right {
+    .solid, .broken-left, .broken-right {
       position: absolute;
       top: 0;
       height: 100%;
-      background: var(--line);
-      border-radius: 999px;
+      background: linear-gradient(180deg, #2c241a, var(--line));
+      border-radius: 3px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.28);
     }
-
-    .solid {
-      width: 100%;
-      left: 0;
-    }
-
+    .solid { width: 100%; left: 0; }
     .broken-left { width: 43%; left: 0; }
     .broken-right { width: 43%; right: 0; }
 
-    .line-changing {
-      outline: 2px dashed #c88557;
-      outline-offset: 3px;
+    .line-changing .solid,
+    .line-changing .broken-left,
+    .line-changing .broken-right {
+      background: linear-gradient(180deg, #d4623a, var(--cinnabar));
+      box-shadow: 0 0 10px rgba(179, 50, 44, 0.6);
     }
 
+    .result-title {
+      text-align: center;
+      margin: 4px 0 2px;
+    }
+    .result-title .hanzi {
+      font-family: "Ma Shan Zheng", serif;
+      font-size: 2.1rem;
+      color: var(--cinnabar-deep);
+      letter-spacing: 0.1em;
+      line-height: 1.1;
+    }
     .result h2 {
-      margin: 6px 0;
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: clamp(1.1rem, 2.3vw, 1.5rem);
+      margin: 2px 0 0;
+      font-family: "Cinzel", Georgia, serif;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      font-size: clamp(1.05rem, 2.3vw, 1.4rem);
+      color: var(--ink);
     }
+    .result p { margin: 9px 0; line-height: 1.55; }
 
-    .result p {
-      margin: 8px 0;
-      line-height: 1.45;
+    #interpretationText {
+      font-style: italic;
+      color: var(--ink-soft);
+      border-left: 3px solid var(--gold);
+      padding-left: 12px;
     }
+    #reflectionText { color: var(--jade); font-weight: 600; }
 
     .page-nav {
       display: flex;
       gap: 8px;
-      margin: 10px 0 12px;
+      margin: 12px 0 14px;
+      justify-content: center;
     }
-
     .page-btn {
-      background: #cdbba3;
-      color: #2f271f;
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid rgba(138, 32, 27, 0.3);
       border-radius: 999px;
-      padding: 8px 12px;
-      font-size: 0.85rem;
+      padding: 7px 16px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      box-shadow: none;
     }
-
+    .page-btn:hover { transform: none; color: var(--cinnabar); }
     .page-btn.active {
-      background: var(--accent-2);
-      color: #fff;
+      background: linear-gradient(180deg, var(--cinnabar), var(--cinnabar-deep));
+      color: #fdf3e2;
+      border-color: var(--cinnabar-deep);
     }
 
-    .prediction-page {
-      display: none;
-      animation: pageIn 0.22s ease;
-    }
-
-    .prediction-page.active {
-      display: block;
-    }
+    .prediction-page { display: none; animation: pageIn 0.3s ease; }
+    .prediction-page.active { display: block; }
 
     .extras-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(120px, 1fr));
       gap: 10px;
-      margin: 8px 0 12px;
+      margin: 6px 0 14px;
     }
 
-    .extra {
-      background: #fff;
-      border: 1px solid #e3d7c6;
-      border-radius: 10px;
-      padding: 10px;
-    }
-
-    .extra h3 {
-      margin: 0;
-      font-size: 0.79rem;
-      color: var(--muted);
-      font-weight: 500;
-    }
-
-    .extra p {
-      margin: 4px 0 0;
-      font-size: 1rem;
-      font-weight: 600;
-    }
+    #actionCueText, #avoidCueText { font-size: 0.96rem; }
+    #avoidCueText { color: var(--cinnabar-deep); }
 
     @keyframes pageIn {
-      from {
-        opacity: 0;
-        transform: translateY(4px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .disclaimer {
-      margin-top: 10px;
+      margin-top: 14px;
       color: var(--muted);
-      font-size: 0.82rem;
-      border-top: 1px dashed #dbcdb8;
-      padding-top: 8px;
+      font-size: 0.8rem;
+      border-top: 1px dashed rgba(138, 32, 27, 0.3);
+      padding-top: 10px;
     }
 
     @media (max-width: 640px) {
-      body { padding: 12px; }
-      .hero { padding: 18px 16px 6px; }
-      .grid { padding: 14px; }
-      .hex-line { width: 150px; }
+      body { padding: 22px 12px 36px; }
+      .hero { padding: 22px 16px 16px; }
+      .grid { padding: 16px; gap: 16px; }
+      .hex-stage { width: 240px; height: 240px; }
+      .hex-line { width: 138px; }
     }
   </style>
 </head>
 <body>
-  <main class="app">
-    <header class="hero">
-      <h1>Cycle of Change</h1>
-      <p class="subtitle">A deterministic reflection engine inspired by the 64 hexagrams of the Yijing.</p>
-    </header>
+  <div class="scroll">
+    <div class="rod" aria-hidden="true"></div>
+    <main class="app">
+      <header class="hero">
+        <div class="seal" aria-hidden="true">易</div>
+        <svg class="taiji" viewBox="0 0 200 200" role="img" aria-label="Taiji yin-yang">
+          <defs>
+            <clipPath id="circ"><circle cx="100" cy="100" r="98" /></clipPath>
+          </defs>
+          <g clip-path="url(#circ)">
+            <rect x="0" y="0" width="200" height="200" fill="#f3ead7" />
+            <path d="M100,2 a98,98 0 0,1 0,196 a49,49 0 0,1 0,-98 a49,49 0 0,0 0,-98 z" fill="#201a14" />
+            <circle cx="100" cy="51" r="14" fill="#f3ead7" />
+            <circle cx="100" cy="149" r="14" fill="#201a14" />
+          </g>
+          <circle cx="100" cy="100" r="98" fill="none" stroke="#c9a24b" stroke-width="3" />
+        </svg>
+        <p class="hanzi-title">變化之道</p>
+        <h1>Cycle of Change</h1>
+        <p class="subtitle">
+          A deterministic reflection engine drawn from the 64 hexagrams of the Yijing —
+          the Book of Changes. Two dates, one daily reading.
+        </p>
+      </header>
 
-    <section class="grid">
-      <article class="panel">
-        <label for="birthday">Birthday</label>
-        <input id="birthday" type="date" required />
+      <section class="grid">
+        <article class="panel">
+          <div class="panel-label">問卜 · Consult</div>
+          <label for="birthday">Birthday</label>
+          <input id="birthday" type="date" required />
 
-        <label for="today">Today</label>
-        <input id="today" type="date" required />
+          <label for="today">Today</label>
+          <input id="today" type="date" required />
 
-        <div class="button-row">
-          <button id="castBtn">Cast Today</button>
-          <button id="shareBtn" class="secondary" type="button">Share Result</button>
-        </div>
+          <div class="button-row">
+            <button id="castBtn">Cast the Coins</button>
+            <button id="shareBtn" class="secondary" type="button">Share Reading</button>
+          </div>
 
-        <p class="meta" id="streakText">Daily streak: 0</p>
-      </article>
+          <p class="meta" id="streakText">Daily streak: 0</p>
+        </article>
 
-      <article class="panel result" id="resultPanel" aria-live="polite">
-        <h2>Enter your birthday and cast your day.</h2>
-        <nav class="page-nav">
-          <button class="page-btn active" id="page1Btn" type="button">Page 1: Core</button>
-          <button class="page-btn" id="page2Btn" type="button">Page 2: Guidance</button>
-        </nav>
+        <article class="panel result" id="resultPanel" aria-live="polite">
+          <div class="panel-label">卦象 · The Reading</div>
+          <h2>Enter your birthday and cast the coins.</h2>
+          <nav class="page-nav">
+            <button class="page-btn active" id="page1Btn" type="button">卦 Core</button>
+            <button class="page-btn" id="page2Btn" type="button">運 Guidance</button>
+          </nav>
 
-        <section class="prediction-page active" id="page1">
-          <div class="hexagram" id="hexagramCanvas"></div>
-
-          <section class="metrics">
-            <div class="metric">
-              <h3>Momentum</h3>
-              <p id="momentumText">-</p>
+          <section class="prediction-page active" id="page1">
+            <div class="hex-stage">
+              <div class="bagua-ring" id="baguaRing" aria-hidden="true"></div>
+              <div class="hexagram" id="hexagramCanvas"></div>
             </div>
-            <div class="metric">
-              <h3>Stability</h3>
-              <p id="stabilityText">-</p>
+
+            <div class="result-title">
+              <div class="hanzi" id="hexHanzi"></div>
             </div>
-            <div class="metric">
-              <h3>Yin / Yang</h3>
-              <p id="balanceText">-</p>
-            </div>
-            <div class="metric">
-              <h3>Change Line</h3>
-              <p id="changeLineText">-</p>
-            </div>
+
+            <section class="metrics">
+              <div class="metric">
+                <h3>Momentum 勢</h3>
+                <p id="momentumText">-</p>
+              </div>
+              <div class="metric">
+                <h3>Stability 穩</h3>
+                <p id="stabilityText">-</p>
+              </div>
+              <div class="metric">
+                <h3>Yin / Yang 陰陽</h3>
+                <p id="balanceText">-</p>
+              </div>
+              <div class="metric">
+                <h3>Change Line 變爻</h3>
+                <p id="changeLineText">-</p>
+              </div>
+            </section>
+
+            <p id="interpretationText"></p>
+            <p id="reflectionText"></p>
           </section>
 
-          <p id="interpretationText"></p>
-          <p id="reflectionText"></p>
-        </section>
-
-        <section class="prediction-page" id="page2">
-          <section class="extras-grid">
-            <div class="extra">
-              <h3>Lucky Number</h3>
-              <p id="luckyNumberText">-</p>
-            </div>
-            <div class="extra">
-              <h3>Lucky Color</h3>
-              <p id="luckyColorText">-</p>
-            </div>
-            <div class="extra">
-              <h3>Active Element</h3>
-              <p id="elementText">-</p>
-            </div>
-            <div class="extra">
-              <h3>Best Time Block</h3>
-              <p id="timeBlockText">-</p>
-            </div>
+          <section class="prediction-page" id="page2">
+            <section class="extras-grid">
+              <div class="extra">
+                <h3>Lucky Number 數</h3>
+                <p id="luckyNumberText">-</p>
+              </div>
+              <div class="extra">
+                <h3>Lucky Color 色</h3>
+                <p id="luckyColorText">-</p>
+              </div>
+              <div class="extra">
+                <h3>Active Element 五行</h3>
+                <p id="elementText">-</p>
+              </div>
+              <div class="extra">
+                <h3>Best Time 時辰</h3>
+                <p id="timeBlockText">-</p>
+              </div>
+            </section>
+            <p id="actionCueText"></p>
+            <p id="avoidCueText"></p>
           </section>
-          <p id="actionCueText"></p>
-          <p id="avoidCueText"></p>
-        </section>
 
-        <p class="disclaimer">This tool is for pattern-based reflection, not prediction or factual claims.</p>
-      </article>
-    </section>
-  </main>
+          <p class="disclaimer">This tool is for pattern-based reflection, not prediction or factual claims.</p>
+        </article>
+      </section>
+    </main>
+    <div class="rod" aria-hidden="true"></div>
+  </div>
 
   <script>
     const hexagrams = [
@@ -468,6 +682,7 @@
     const streakText = document.getElementById("streakText");
     const resultPanel = document.getElementById("resultPanel");
     const hexagramCanvas = document.getElementById("hexagramCanvas");
+    const hexHanzi = document.getElementById("hexHanzi");
     const momentumText = document.getElementById("momentumText");
     const stabilityText = document.getElementById("stabilityText");
     const balanceText = document.getElementById("balanceText");
@@ -480,6 +695,7 @@
     const timeBlockText = document.getElementById("timeBlockText");
     const actionCueText = document.getElementById("actionCueText");
     const avoidCueText = document.getElementById("avoidCueText");
+    const baguaRing = document.getElementById("baguaRing");
 
     const luckyColors = ["Amber", "Jade", "Ocean Blue", "Slate", "Crimson", "Gold", "Moss", "Pearl"];
     const elements = ["Wood", "Fire", "Earth", "Metal", "Water"];
@@ -510,6 +726,10 @@
       "Avoid forcing outcomes that need patience.",
       "Avoid reacting before collecting full context."
     ];
+
+    // The eight trigrams arranged around the bagua ring (decorative).
+    const baguaGlyphs = ["☰", "☱", "☲", "☳", "☴", "☵", "☶", "☷"];
+    renderBaguaRing();
 
     const todayISO = new Date().toISOString().slice(0, 10);
     todayInput.value = todayISO;
@@ -715,6 +935,20 @@
         setTimeout(() => {
           line.classList.add("show");
         }, idx * 70);
+      });
+    }
+
+    function renderBaguaRing() {
+      const radius = 122;
+      baguaGlyphs.forEach((glyph, idx) => {
+        const span = document.createElement("span");
+        span.className = "bagua-glyph";
+        span.textContent = glyph;
+        const angle = (idx / baguaGlyphs.length) * Math.PI * 2 - Math.PI / 2;
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
+        span.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`;
+        baguaRing.appendChild(span);
       });
     }
 
