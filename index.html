@@ -659,6 +659,26 @@
       ["Before Completion", "The final stretch needs extra precision."]
     ];
 
+    // Authentic King Wen sequence: hanzi name + pinyin for each of the 64 hexagrams.
+    const hexMeta = [
+      { hz: "乾", py: "Qián" }, { hz: "坤", py: "Kūn" }, { hz: "屯", py: "Zhūn" }, { hz: "蒙", py: "Méng" },
+      { hz: "需", py: "Xū" }, { hz: "訟", py: "Sòng" }, { hz: "師", py: "Shī" }, { hz: "比", py: "Bǐ" },
+      { hz: "小畜", py: "Xiǎochù" }, { hz: "履", py: "Lǚ" }, { hz: "泰", py: "Tài" }, { hz: "否", py: "Pǐ" },
+      { hz: "同人", py: "Tóngrén" }, { hz: "大有", py: "Dàyǒu" }, { hz: "謙", py: "Qiān" }, { hz: "豫", py: "Yù" },
+      { hz: "隨", py: "Suí" }, { hz: "蠱", py: "Gǔ" }, { hz: "臨", py: "Lín" }, { hz: "觀", py: "Guān" },
+      { hz: "噬嗑", py: "Shìkè" }, { hz: "賁", py: "Bì" }, { hz: "剝", py: "Bō" }, { hz: "復", py: "Fù" },
+      { hz: "無妄", py: "Wúwàng" }, { hz: "大畜", py: "Dàchù" }, { hz: "頤", py: "Yí" }, { hz: "大過", py: "Dàguò" },
+      { hz: "坎", py: "Kǎn" }, { hz: "離", py: "Lí" }, { hz: "咸", py: "Xián" }, { hz: "恆", py: "Héng" },
+      { hz: "遯", py: "Dùn" }, { hz: "大壯", py: "Dàzhuàng" }, { hz: "晉", py: "Jìn" }, { hz: "明夷", py: "Míngyí" },
+      { hz: "家人", py: "Jiārén" }, { hz: "睽", py: "Kuí" }, { hz: "蹇", py: "Jiǎn" }, { hz: "解", py: "Xiè" },
+      { hz: "損", py: "Sǔn" }, { hz: "益", py: "Yì" }, { hz: "夬", py: "Guài" }, { hz: "姤", py: "Gòu" },
+      { hz: "萃", py: "Cuì" }, { hz: "升", py: "Shēng" }, { hz: "困", py: "Kùn" }, { hz: "井", py: "Jǐng" },
+      { hz: "革", py: "Gé" }, { hz: "鼎", py: "Dǐng" }, { hz: "震", py: "Zhèn" }, { hz: "艮", py: "Gèn" },
+      { hz: "漸", py: "Jiàn" }, { hz: "歸妹", py: "Guīmèi" }, { hz: "豐", py: "Fēng" }, { hz: "旅", py: "Lǚ" },
+      { hz: "巽", py: "Xùn" }, { hz: "兌", py: "Duì" }, { hz: "渙", py: "Huàn" }, { hz: "節", py: "Jié" },
+      { hz: "中孚", py: "Zhōngfú" }, { hz: "小過", py: "Xiǎoguò" }, { hz: "既濟", py: "Jìjì" }, { hz: "未濟", py: "Wèijì" }
+    ];
+
     const reflectionPrompts = [
       "Where can you replace force with better timing?",
       "What is one thing to simplify before acting?",
@@ -794,6 +814,7 @@
           : "Neutral";
 
       const [name, line] = hexagrams[hexNumber - 1];
+      const meta = hexMeta[hexNumber - 1];
       const reflection = reflectionPrompts[(hexNumber + todayNumber) % reflectionPrompts.length];
       const luckyNumber = ((lifeNumber + todayNumber + hexNumber) % 9) + 1;
       const luckyColor = luckyColors[(hexNumber + todayNumber) % luckyColors.length];
@@ -803,6 +824,7 @@
       const avoidCue = avoidCues[(todayNumber + yinCount) % avoidCues.length];
 
       renderHexagram(displayLines, changeLine);
+      hexHanzi.textContent = `${meta.hz} · ${meta.py}`;
       resultPanel.querySelector("h2").textContent = `Hexagram ${hexNumber} - ${name}`;
       momentumText.textContent = `${momentumLabel} (${momentumIndex >= 0 ? "+" : ""}${momentumIndex})`;
       stabilityText.textContent = `${stability}%`;
@@ -823,6 +845,8 @@
         today,
         hexNumber,
         name,
+        hanzi: meta.hz,
+        pinyin: meta.py,
         momentumLabel,
         momentumIndex,
         stability,
@@ -852,7 +876,7 @@
       const r = state.lastResult;
       const text = [
         `Cycle of Change - ${r.today}`,
-        `Hexagram ${r.hexNumber}: ${r.name}`,
+        `Hexagram ${r.hexNumber}: ${r.hanzi} ${r.name} (${r.pinyin})`,
         `Momentum: ${r.momentumLabel} (${r.momentumIndex >= 0 ? "+" : ""}${r.momentumIndex})`,
         `Stability: ${r.stability}%`,
         `Balance: ${r.yinCount} Yin / ${r.yangCount} Yang`,
