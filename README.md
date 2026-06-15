@@ -2,6 +2,8 @@
 
 Cycle of Change is a client-facing reflection tool inspired by the **Yijing (I Ching / Book of Changes)**, presented in a Chinese **fengshui** visual style. It transforms two clean inputs — your birthday and today's date — into a deterministic daily reading that feels poetic, structured, and grounded in the authentic 64-hexagram tradition.
 
+🔮 Try live deployment: https://wuisabel-gif.github.io/Cycle-of-Change/
+
 ## Based on the Yijing Book
 
 This project draws on the 64-hexagram framework of the **Yijing (Book of Changes / 周易)**. Each reading uses the **authentic King Wen sequence**: real Chinese hexagram names, the true trigram composition, and faithfully condensed **Judgment (卦辭)** and **Image (象辭)** text after the Wilhelm / Baynes translation.
