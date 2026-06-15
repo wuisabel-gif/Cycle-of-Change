@@ -1365,6 +1365,16 @@
       return JSON.stringify(payload);
     };
 
+    const themeToggle = document.getElementById("themeToggle");
+    if (localStorage.getItem("coc_theme") === "night") {
+      document.body.classList.add("night");
+    }
+    themeToggle.addEventListener("click", () => {
+      const night = !document.body.classList.contains("night");
+      document.body.classList.toggle("night", night);
+      localStorage.setItem("coc_theme", night ? "night" : "day");
+    });
+
     updateStreakLabel();
     setPredictionPage(1);
     renderJournal();
