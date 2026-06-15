@@ -198,6 +198,38 @@
     .theme-toggle:hover { transform: rotate(180deg); background: rgba(179, 50, 44, 0.08); }
     body.night .theme-toggle { color: var(--gold); border-color: rgba(216, 184, 115, 0.5); }
 
+    .sound-toggle {
+      position: absolute;
+      top: 22px;
+      left: 72px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid rgba(138, 32, 27, 0.4);
+      background: transparent;
+      color: var(--cinnabar-deep);
+      font-size: 1.2rem;
+      line-height: 1;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      box-shadow: none;
+      transition: background 0.2s ease, opacity 0.2s ease, color 0.2s ease;
+    }
+    .sound-toggle:hover { transform: none; background: rgba(179, 50, 44, 0.08); }
+    .sound-toggle.off { opacity: 0.4; }
+    .sound-toggle.off::after {
+      content: "";
+      position: absolute;
+      left: 7px;
+      right: 7px;
+      top: 50%;
+      height: 1.5px;
+      background: currentColor;
+      transform: rotate(-45deg);
+    }
+    body.night .sound-toggle { color: var(--gold); border-color: rgba(216, 184, 115, 0.5); }
+
     .hero {
       position: relative;
       padding: 30px 30px 22px;
@@ -920,6 +952,8 @@
       <header class="hero">
         <button class="theme-toggle" id="themeToggle" type="button"
           aria-label="Toggle day / night" title="Day / Night">☯</button>
+        <button class="sound-toggle off" id="soundToggle" type="button"
+          aria-label="Toggle sound" title="Sound on / off" aria-pressed="false">♫</button>
         <div class="seal" aria-hidden="true">易</div>
         <svg class="taiji" viewBox="0 0 200 200" role="img" aria-label="Taiji yin-yang">
           <defs>
@@ -1409,6 +1443,138 @@
       document.body.classList.toggle("night", night);
       localStorage.setItem("coc_theme", night ? "night" : "day");
     });
+
+    /* ---------------------------------------------------------------
+       Audio: synthesized guzheng-style plucks over the Chinese
+       pentatonic scale (宫商角徵羽 = C D E G A). No external files.
+    --------------------------------------------------------------- */
+    const soundToggle = document.getElementById("soundToggle");
+    const audio = { ctx: null, master: null, musicBus: null, sfxBus: null, on: false, musicTimer: null };
+
+    // Pentatonic notes (C D E G A) across three octaves, in Hz.
+    function noteHz(semitonesFromC4) { return 261.63 * Math.pow(2, semitonesFromC4 / 12); }
+    const PENTA = [];
+    [-12, 0, 12].forEach((oct) => [0, 2, 4, 7, 9].forEach((s) => PENTA.push(noteHz(oct + s))));
+    const MUSIC_NOTES = PENTA.filter((f) => f < 700);
+    const SFX_NOTES = PENTA.filter((f) => f > 300);
+
+    function ensureAudio() {
+      if (!audio.ctx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return false;
+        const ctx = new AC();
+        const master = ctx.createGain();
+        master.gain.value = 0.9;
+        master.connect(ctx.destination);
+        // A feedback delay gives a soft, hall-like resonance.
+        const delay = ctx.createDelay();
+        delay.delayTime.value = 0.26;
+        const fb = ctx.createGain();
+        fb.gain.value = 0.32;
+        const wet = ctx.createGain();
+        wet.gain.value = 0.22;
+        delay.connect(fb); fb.connect(delay); delay.connect(wet); wet.connect(master);
+        const musicBus = ctx.createGain();
+        musicBus.gain.value = 0;
+        musicBus.connect(master); musicBus.connect(delay);
+        const sfxBus = ctx.createGain();
+        sfxBus.gain.value = 0.6;
+        sfxBus.connect(master); sfxBus.connect(delay);
+        audio.ctx = ctx;
+        audio.master = master;
+        audio.musicBus = musicBus;
+        audio.sfxBus = sfxBus;
+      }
+      if (audio.ctx.state === "suspended") audio.ctx.resume();
+      return true;
+    }
+
+    // Karplus-Strong plucked string rendered into a buffer, then played.
+    function pluck(freq, bus, { amp = 0.5, decay = 0.996, dur = 1.4, when = 0 } = {}) {
+      const ctx = audio.ctx;
+      const sr = ctx.sampleRate;
+      const N = Math.max(2, Math.floor(sr / freq));
+      const len = Math.floor(sr * dur);
+      const buffer = ctx.createBuffer(1, len, sr);
+      const d = buffer.getChannelData(0);
+      for (let i = 0; i < N; i++) d[i] = Math.random() * 2 - 1;
+      for (let i = N; i < len; i++) d[i] = (d[i - N] + d[i - N + 1]) * 0.5 * decay;
+      const fade = Math.floor(len * 0.12);
+      for (let i = 0; i < fade; i++) d[len - 1 - i] *= i / fade;
+      const src = ctx.createBufferSource();
+      src.buffer = buffer;
+      const g = ctx.createGain();
+      g.gain.value = amp;
+      src.connect(g); g.connect(bus);
+      src.start(when || ctx.currentTime);
+    }
+
+    function clickPluck() {
+      if (!ensureAudio()) return;
+      const f = SFX_NOTES[Math.floor(Math.random() * SFX_NOTES.length)];
+      pluck(f, audio.sfxBus, { amp: 0.45, decay: 0.995, dur: 1.1 });
+    }
+
+    function castChime() {
+      if (!ensureAudio()) return;
+      const t = audio.ctx.currentTime;
+      // Ascending pentatonic flourish (like a swept guzheng) ...
+      const run = [0, 2, 4, 7].map((s) => noteHz(s)).concat([noteHz(12)]);
+      run.forEach((f, i) => pluck(f, audio.sfxBus, { amp: 0.4, decay: 0.997, dur: 1.6, when: t + i * 0.075 }));
+      // ... over a deep resonant gong.
+      pluck(noteHz(-24), audio.sfxBus, { amp: 0.5, decay: 0.9996, dur: 3.2, when: t });
+    }
+
+    function scheduleMusic() {
+      if (!audio.on) return;
+      const f = MUSIC_NOTES[Math.floor(Math.random() * MUSIC_NOTES.length)];
+      pluck(f, audio.musicBus, { amp: 0.5, decay: 0.9985, dur: 2.6 });
+      // Occasionally add a gentle harmony note.
+      if (Math.random() < 0.4) {
+        const h = MUSIC_NOTES[Math.floor(Math.random() * MUSIC_NOTES.length)];
+        pluck(h, audio.musicBus, { amp: 0.3, decay: 0.9985, dur: 2.6, when: audio.ctx.currentTime + 0.18 });
+      }
+      audio.musicTimer = setTimeout(scheduleMusic, 850 + Math.random() * 1500);
+    }
+
+    function startMusic() {
+      if (!ensureAudio() || audio.musicTimer) return;
+      audio.musicBus.gain.cancelScheduledValues(audio.ctx.currentTime);
+      audio.musicBus.gain.setTargetAtTime(0.12, audio.ctx.currentTime, 1.2);
+      scheduleMusic();
+    }
+
+    function stopMusic() {
+      clearTimeout(audio.musicTimer);
+      audio.musicTimer = null;
+      if (audio.musicBus) audio.musicBus.gain.setTargetAtTime(0, audio.ctx.currentTime, 0.4);
+    }
+
+    function setSound(on) {
+      audio.on = on;
+      soundToggle.classList.toggle("off", !on);
+      soundToggle.setAttribute("aria-pressed", String(on));
+      localStorage.setItem("coc_sound", on ? "on" : "off");
+      if (on) { startMusic(); clickPluck(); } else { stopMusic(); }
+    }
+
+    soundToggle.addEventListener("click", () => setSound(!audio.on));
+
+    // Soft pluck on every other button; a chime when casting.
+    document.querySelectorAll("button").forEach((btn) => {
+      if (btn.id === "soundToggle") return;
+      btn.addEventListener("click", () => {
+        if (!audio.on) return;
+        if (btn.id === "castBtn") castChime();
+        else clickPluck();
+      });
+    });
+
+    // Restore a saved "on" preference on the first user gesture (autoplay policy).
+    if (localStorage.getItem("coc_sound") === "on") {
+      const resume = () => { setSound(true); window.removeEventListener("pointerdown", resume); };
+      window.addEventListener("pointerdown", resume, { once: true });
+    }
 
     updateStreakLabel();
     setPredictionPage(1);
