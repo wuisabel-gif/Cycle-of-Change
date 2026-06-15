@@ -279,6 +279,43 @@
     }
     .meta::before { content: "☯"; color: var(--cinnabar); }
 
+    .trigrams {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 14px 0 4px;
+    }
+    .trigram {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(180deg, #fffdf7, #f2e6cd);
+      border: 1px solid rgba(138, 32, 27, 0.2);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .trigram .glyph {
+      font-size: 1.9rem;
+      line-height: 1;
+      color: var(--cinnabar-deep);
+      width: 34px;
+      text-align: center;
+      letter-spacing: -0.18em;
+    }
+    .trigram .role {
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .trigram .tg-name {
+      font-family: "Ma Shan Zheng", serif;
+      font-size: 1.15rem;
+      color: var(--ink);
+    }
+    .trigram .tg-name span { color: var(--ink-soft); font-size: 0.82rem; }
+    .trigram .tg-sub { font-size: 0.74rem; color: var(--jade); font-weight: 600; }
+
     .metrics {
       display: grid;
       grid-template-columns: repeat(2, minmax(120px, 1fr));
@@ -538,6 +575,8 @@
               <div class="hanzi" id="hexHanzi"></div>
             </div>
 
+            <div class="trigrams" id="trigramRow"></div>
+
             <section class="metrics">
               <div class="metric">
                 <h3>Momentum 勢</h3>
@@ -716,6 +755,7 @@
     const actionCueText = document.getElementById("actionCueText");
     const avoidCueText = document.getElementById("avoidCueText");
     const baguaRing = document.getElementById("baguaRing");
+    const trigramRow = document.getElementById("trigramRow");
 
     const luckyColors = ["Amber", "Jade", "Ocean Blue", "Slate", "Crimson", "Gold", "Moss", "Pearl"];
     const elements = ["Wood", "Fire", "Earth", "Metal", "Water"];
@@ -746,6 +786,19 @@
       "Avoid forcing outcomes that need patience.",
       "Avoid reacting before collecting full context."
     ];
+
+    // The eight trigrams (bagua), keyed by 3 bits: bottom*4 + middle*2 + top (yang = 1).
+    // Each carries its glyph, name, attribute, five-element phase and fengshui direction.
+    const trigrams = {
+      7: { glyph: "☰", hz: "乾", py: "Qián", en: "Heaven", element: "Metal", dir: "NW" },
+      6: { glyph: "☱", hz: "兌", py: "Duì", en: "Lake", element: "Metal", dir: "W" },
+      5: { glyph: "☲", hz: "離", py: "Lí", en: "Fire", element: "Fire", dir: "S" },
+      4: { glyph: "☳", hz: "震", py: "Zhèn", en: "Thunder", element: "Wood", dir: "E" },
+      3: { glyph: "☴", hz: "巽", py: "Xùn", en: "Wind", element: "Wood", dir: "SE" },
+      2: { glyph: "☵", hz: "坎", py: "Kǎn", en: "Water", element: "Water", dir: "N" },
+      1: { glyph: "☶", hz: "艮", py: "Gèn", en: "Mountain", element: "Earth", dir: "NE" },
+      0: { glyph: "☷", hz: "坤", py: "Kūn", en: "Earth", element: "Earth", dir: "SW" }
+    };
 
     // The eight trigrams arranged around the bagua ring (decorative).
     const baguaGlyphs = ["☰", "☱", "☲", "☳", "☴", "☵", "☶", "☷"];
@@ -823,7 +876,10 @@
       const actionCue = actionCues[(hexNumber + lifeNumber) % actionCues.length];
       const avoidCue = avoidCues[(todayNumber + yinCount) % avoidCues.length];
 
+      const { upper, lower } = deriveTrigrams(displayLines);
+
       renderHexagram(displayLines, changeLine);
+      renderTrigrams(upper, lower);
       hexHanzi.textContent = `${meta.hz} · ${meta.py}`;
       resultPanel.querySelector("h2").textContent = `Hexagram ${hexNumber} - ${name}`;
       momentumText.textContent = `${momentumLabel} (${momentumIndex >= 0 ? "+" : ""}${momentumIndex})`;
@@ -847,6 +903,8 @@
         name,
         hanzi: meta.hz,
         pinyin: meta.py,
+        upperTrigram: `${upper.hz} ${upper.en}`,
+        lowerTrigram: `${lower.hz} ${lower.en}`,
         momentumLabel,
         momentumIndex,
         stability,
@@ -877,6 +935,7 @@
       const text = [
         `Cycle of Change - ${r.today}`,
         `Hexagram ${r.hexNumber}: ${r.hanzi} ${r.name} (${r.pinyin})`,
+        `Trigrams: ${r.upperTrigram} over ${r.lowerTrigram}`,
         `Momentum: ${r.momentumLabel} (${r.momentumIndex >= 0 ? "+" : ""}${r.momentumIndex})`,
         `Stability: ${r.stability}%`,
         `Balance: ${r.yinCount} Yin / ${r.yangCount} Yang`,
@@ -960,6 +1019,30 @@
           line.classList.add("show");
         }, idx * 70);
       });
+    }
+
+    function trigramFor(bottom, middle, top) {
+      return trigrams[(bottom ? 4 : 0) + (middle ? 2 : 0) + (top ? 1 : 0)];
+    }
+
+    // displayLines is top-down (index 0 = line 6, index 5 = line 1).
+    function deriveTrigrams(displayLines) {
+      const lower = trigramFor(displayLines[5], displayLines[4], displayLines[3]);
+      const upper = trigramFor(displayLines[2], displayLines[1], displayLines[0]);
+      return { upper, lower };
+    }
+
+    function renderTrigrams(upper, lower) {
+      const card = (role, t) => `
+        <div class="trigram">
+          <div class="glyph">${t.glyph}</div>
+          <div>
+            <div class="role">${role}</div>
+            <div class="tg-name">${t.hz} <span>${t.en}</span></div>
+            <div class="tg-sub">${t.element} · ${t.dir}</div>
+          </div>
+        </div>`;
+      trigramRow.innerHTML = card("上卦 Upper", upper) + card("下卦 Lower", lower);
     }
 
     function renderBaguaRing() {
