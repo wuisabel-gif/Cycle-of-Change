@@ -30,6 +30,7 @@
     }
 
     * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
 
     body {
       margin: 0;
@@ -254,7 +255,8 @@
       margin-bottom: 6px;
     }
 
-    input[type="date"] {
+    input[type="date"],
+    input[type="text"] {
       width: 100%;
       padding: 11px 12px;
       border: 1px solid var(--paper-deep);
@@ -265,11 +267,69 @@
       margin-bottom: 14px;
       transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
-    input[type="date"]:focus {
+    input[type="text"]::placeholder { color: var(--muted); opacity: 0.7; }
+    input[type="date"]:focus,
+    input[type="text"]:focus {
       outline: none;
       border-color: var(--cinnabar);
       box-shadow: 0 0 0 3px rgba(179, 50, 44, 0.14);
     }
+
+    .question-echo {
+      text-align: center;
+      font-style: italic;
+      color: var(--cinnabar-deep);
+      margin: 0 0 10px;
+      font-size: 0.96rem;
+    }
+    .question-echo::before { content: "「"; }
+    .question-echo::after { content: "」"; }
+
+    /* Journal */
+    .journal {
+      border-top: 1px solid rgba(138, 32, 27, 0.22);
+      padding: 18px 22px 24px;
+    }
+    .journal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .journal-title {
+      font-family: "Ma Shan Zheng", serif;
+      color: var(--cinnabar);
+      font-size: 1.15rem;
+      letter-spacing: 0.1em;
+    }
+    .ghost-btn {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid rgba(138, 32, 27, 0.3);
+      border-radius: 999px;
+      padding: 5px 12px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      box-shadow: none;
+    }
+    .ghost-btn:hover { transform: none; color: var(--cinnabar); border-color: var(--cinnabar); }
+    .journal-list { display: grid; gap: 8px; }
+    .journal-empty { color: var(--muted); font-size: 0.88rem; font-style: italic; }
+    .journal-entry {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 4px 12px;
+      align-items: baseline;
+      background: linear-gradient(180deg, #fffdf7, #f4e9d2);
+      border: 1px solid rgba(138, 32, 27, 0.16);
+      border-left: 3px solid var(--gold);
+      border-radius: 8px;
+      padding: 9px 12px;
+    }
+    .je-date { font-size: 0.78rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .je-hex { font-weight: 700; color: var(--ink); }
+    .je-hex .je-hz { font-family: "Ma Shan Zheng", serif; color: var(--cinnabar-deep); margin-right: 4px; }
+    .je-q { grid-column: 1 / -1; font-size: 0.86rem; color: var(--ink-soft); font-style: italic; }
 
     .button-row {
       display: flex;
@@ -805,6 +865,10 @@
           <label for="today">Today</label>
           <input id="today" type="date" required />
 
+          <label for="questionInput">Question / Intention 問</label>
+          <input id="questionInput" type="text" maxlength="140"
+            placeholder="What is on your mind? (optional)" />
+
           <div class="button-row">
             <button id="castBtn">Cast the Coins</button>
             <button id="shareBtn" class="secondary" type="button">Share Reading</button>
@@ -822,6 +886,7 @@
           </nav>
 
           <section class="prediction-page active" id="page1">
+            <p class="question-echo" id="questionEcho" hidden></p>
             <div class="hex-stage">
               <div class="bagua-ring" id="baguaRing" aria-hidden="true"></div>
               <div class="coin-tray" id="coinTray" aria-hidden="true">
@@ -916,6 +981,14 @@
 
           <p class="disclaimer">This tool is for pattern-based reflection, not prediction or factual claims.</p>
         </article>
+      </section>
+
+      <section class="journal" id="journalPanel">
+        <div class="journal-head">
+          <span class="journal-title">卷宗 · Journal</span>
+          <button id="clearJournalBtn" class="ghost-btn" type="button">清 Clear</button>
+        </div>
+        <div class="journal-list" id="journalList"></div>
       </section>
     </main>
     <div class="rod bottom" aria-hidden="true"></div>
@@ -1122,6 +1195,10 @@
     const miniPresent = document.getElementById("miniPresent");
     const miniRelating = document.getElementById("miniRelating");
     const relatingNameEl = document.getElementById("relatingName");
+    const questionInput = document.getElementById("questionInput");
+    const questionEcho = document.getElementById("questionEcho");
+    const journalList = document.getElementById("journalList");
+    const clearJournalBtn = document.getElementById("clearJournalBtn");
     const coinTray = document.getElementById("coinTray");
     const elementCompass = document.getElementById("elementCompass");
     const wxCenterHz = document.getElementById("wxCenterHz");
@@ -1237,13 +1314,21 @@
 
     updateStreakLabel();
     setPredictionPage(1);
+    renderJournal();
 
     page1Btn.addEventListener("click", () => setPredictionPage(1));
     page2Btn.addEventListener("click", () => setPredictionPage(2));
 
+    clearJournalBtn.addEventListener("click", () => {
+      if (!confirm("Clear your reading journal?")) return;
+      localStorage.removeItem("coc_journal");
+      renderJournal();
+    });
+
     castBtn.addEventListener("click", () => {
       const birthday = birthdayInput.value;
       const today = todayInput.value;
+      const question = questionInput.value.trim();
 
       if (!birthday || !today) {
         resultPanel.querySelector("h2").textContent = "Please provide both dates.";
@@ -1288,6 +1373,8 @@
       renderTransformation(lines, relatingLines, changeLine, relatingNumber);
       renderTrigrams(upper, lower);
       hexHanzi.textContent = `${meta.hz} · ${meta.py}`;
+      questionEcho.textContent = question;
+      questionEcho.hidden = !question;
       resultPanel.querySelector("h2").textContent = `Hexagram ${hexNumber} - ${name}`;
       momentumText.textContent = `${momentumLabel} (${momentumIndex >= 0 ? "+" : ""}${momentumIndex})`;
       stabilityText.textContent = `${stability}%`;
@@ -1315,6 +1402,7 @@
       state.lastResult = {
         birthday,
         today,
+        question: question || null,
         hexNumber,
         name,
         hanzi: meta.hz,
@@ -1338,6 +1426,8 @@
         bestTimeBlock
       };
 
+      saveToJournal({ today, hexNumber, hanzi: meta.hz, name, question });
+      renderJournal();
       updateStreakOnCast(today);
       updateStreakLabel();
     });
@@ -1351,6 +1441,7 @@
       const r = state.lastResult;
       const text = [
         `Cycle of Change - ${r.today}`,
+        r.question ? `Question: ${r.question}` : null,
         `Hexagram ${r.hexNumber}: ${r.hanzi} ${r.name} (${r.pinyin})`,
         `Trigrams: ${r.upperTrigram} over ${r.lowerTrigram}`,
         `Momentum: ${r.momentumLabel} (${r.momentumIndex >= 0 ? "+" : ""}${r.momentumIndex})`,
@@ -1594,6 +1685,56 @@
         "coc_streak",
         JSON.stringify({ streak, lastCastDate: isoDate })
       );
+    }
+
+    function readJournal() {
+      try {
+        const raw = localStorage.getItem("coc_journal");
+        return raw ? JSON.parse(raw) : [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function saveToJournal(entry) {
+      const journal = readJournal();
+      journal.unshift({
+        date: entry.today,
+        hexNumber: entry.hexNumber,
+        hanzi: entry.hanzi,
+        name: entry.name,
+        question: entry.question || ""
+      });
+      // Keep the most recent 50 readings.
+      localStorage.setItem("coc_journal", JSON.stringify(journal.slice(0, 50)));
+    }
+
+    function renderJournal() {
+      const journal = readJournal();
+      if (!journal.length) {
+        journalList.innerHTML =
+          '<p class="journal-empty">No readings yet. Cast the coins to begin your record.</p>';
+        return;
+      }
+      journalList.innerHTML = journal
+        .slice(0, 20)
+        .map((e) => {
+          const q = e.question
+            ? `<div class="je-q">「${escapeHtml(e.question)}」</div>`
+            : "";
+          return `<div class="journal-entry">
+              <span class="je-date">${escapeHtml(e.date || "")}</span>
+              <span class="je-hex"><span class="je-hz">${escapeHtml(e.hanzi || "")}</span>${escapeHtml(e.name || "")} · #${e.hexNumber}</span>
+              ${q}
+            </div>`;
+        })
+        .join("");
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, (c) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      }[c]));
     }
 
     function updateStreakLabel() {
