@@ -876,23 +876,32 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4px;
-      margin-top: 22px;
+      gap: 6px;
+      margin-top: 26px;
+      padding-top: 18px;
       text-align: center;
-      font-size: 0.8rem;
-      color: rgba(224, 197, 133, 0.65);
-      letter-spacing: 0.03em;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #ecd49a;
+      letter-spacing: 0.04em;
+      position: relative;
+    }
+    .site-footer::before {
+      content: "❖";
+      color: var(--gold);
+      font-size: 0.85rem;
+      margin-bottom: 2px;
     }
     .site-footer a {
-      color: var(--gold-soft);
+      color: #f4d98a;
       text-decoration: none;
-      border-bottom: 1px solid rgba(224, 197, 133, 0.35);
+      border-bottom: 1px solid rgba(236, 212, 154, 0.6);
       padding-bottom: 1px;
       transition: color 0.2s ease, border-color 0.2s ease;
     }
     .site-footer a:hover {
-      color: #f0d9a4;
-      border-color: rgba(224, 197, 133, 0.7);
+      color: #fff0c8;
+      border-color: #f4d98a;
     }
 
     @media (max-width: 640px) {
