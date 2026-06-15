@@ -27,6 +27,36 @@
       --line: #1c1610;
       --rod: linear-gradient(180deg, #5a4a32, #2e2418 60%, #1c150d);
       --card-shadow: 0 26px 60px rgba(36, 20, 6, 0.34);
+
+      /* Swappable surfaces (overridden in night mode) */
+      --app-grad: linear-gradient(160deg, #f3ead7, #e8dabd 70%, #ddcca4);
+      --panel-grad: linear-gradient(180deg, #fffdf6, #f6ecd6);
+      --tile-grad: linear-gradient(180deg, #fffdf7, #f4e9d2);
+      --soft-panel: linear-gradient(180deg, rgba(255, 253, 247, 0.7), rgba(244, 233, 210, 0.55));
+      --emblem-grad: linear-gradient(180deg, #fff8ea, #f0e3c8);
+      --input-bg: #fffefa;
+      --stroke: linear-gradient(180deg, #2c241a, #1c1610);
+      --disc: radial-gradient(circle at 50% 50%, rgba(255, 253, 246, 0.65), rgba(244, 233, 210, 0.5));
+    }
+
+    /* Night mode — ink-and-gold palette on dark paper */
+    body.night {
+      --ink: #ece0c8;
+      --ink-soft: #cdc1a8;
+      --muted: #9d9079;
+      --cinnabar: #d4643f;
+      --cinnabar-deep: #e2855c;
+      --gold: #d8b873;
+      --gold-soft: #ecd49a;
+      --jade: #79b29e;
+      --app-grad: linear-gradient(160deg, #2a2118, #221a12 70%, #1b140d);
+      --panel-grad: linear-gradient(180deg, #2c2218, #241c13);
+      --tile-grad: linear-gradient(180deg, #2d2419, #251d13);
+      --soft-panel: linear-gradient(180deg, rgba(64, 51, 33, 0.5), rgba(42, 33, 20, 0.42));
+      --emblem-grad: linear-gradient(180deg, #342718, #271e12);
+      --input-bg: #241c13;
+      --stroke: linear-gradient(180deg, #ecd49a, #c9a24b);
+      --disc: radial-gradient(circle at 50% 50%, rgba(60, 48, 30, 0.55), rgba(34, 26, 16, 0.6));
     }
 
     * { box-sizing: border-box; }
@@ -101,7 +131,7 @@
         radial-gradient(circle at 18% 16%, rgba(179, 50, 44, 0.07), transparent 34%),
         radial-gradient(circle at 84% 84%, rgba(63, 108, 97, 0.08), transparent 34%),
         repeating-linear-gradient(45deg, rgba(120, 90, 40, 0.018) 0 7px, transparent 7px 14px),
-        linear-gradient(160deg, #f3ead7, #e8dabd 70%, #ddcca4);
+        var(--app-grad);
       border: 1px solid rgba(120, 86, 40, 0.4);
       box-shadow: var(--card-shadow);
       overflow: hidden;
@@ -146,6 +176,27 @@
       pointer-events: none;
       border-radius: 2px;
     }
+
+    .theme-toggle {
+      position: absolute;
+      top: 22px;
+      left: 24px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid rgba(138, 32, 27, 0.4);
+      background: transparent;
+      color: var(--cinnabar-deep);
+      font-size: 1.35rem;
+      line-height: 1;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      box-shadow: none;
+      transition: background 0.2s ease, transform 0.4s ease;
+    }
+    .theme-toggle:hover { transform: rotate(180deg); background: rgba(179, 50, 44, 0.08); }
+    body.night .theme-toggle { color: var(--gold); border-color: rgba(216, 184, 115, 0.5); }
 
     .hero {
       position: relative;
@@ -223,7 +274,7 @@
 
     .panel {
       position: relative;
-      background: linear-gradient(180deg, #fffdf6, #f6ecd6);
+      background: var(--panel-grad);
       border: 1px solid rgba(138, 32, 27, 0.24);
       border-radius: 8px;
       padding: 20px 18px;
@@ -267,6 +318,7 @@
       margin-bottom: 14px;
       transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
+    input[type="date"], input[type="text"] { background: var(--input-bg); }
     input[type="text"]::placeholder { color: var(--muted); opacity: 0.7; }
     input[type="date"]:focus,
     input[type="text"]:focus {
@@ -320,7 +372,7 @@
       grid-template-columns: auto 1fr;
       gap: 4px 12px;
       align-items: baseline;
-      background: linear-gradient(180deg, #fffdf7, #f4e9d2);
+      background: var(--tile-grad);
       border: 1px solid rgba(138, 32, 27, 0.16);
       border-left: 3px solid var(--gold);
       border-radius: 8px;
@@ -379,7 +431,7 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      background: linear-gradient(180deg, #fffdf7, #f2e6cd);
+      background: var(--tile-grad);
       border: 1px solid rgba(138, 32, 27, 0.2);
       border-radius: 8px;
       padding: 10px 12px;
@@ -414,7 +466,7 @@
     }
 
     .metric, .extra {
-      background: linear-gradient(180deg, #fffdf7, #f4e9d2);
+      background: var(--tile-grad);
       border: 1px solid rgba(138, 32, 27, 0.18);
       border-radius: 8px;
       padding: 11px 12px;
@@ -458,10 +510,9 @@
       inset: 0;
       border-radius: 50%;
       border: 1px solid rgba(138, 32, 27, 0.3);
-      box-shadow: inset 0 0 0 8px rgba(255, 253, 246, 0.45),
+      box-shadow: inset 0 0 0 8px rgba(201, 162, 75, 0.22),
         inset 0 0 0 9px rgba(201, 162, 75, 0.4);
-      background:
-        radial-gradient(circle at 50% 50%, rgba(255, 253, 246, 0.65), rgba(244, 233, 210, 0.5));
+      background: var(--disc);
       animation: spinSlow 90s linear infinite;
     }
     @keyframes spinSlow { to { transform: rotate(360deg); } }
@@ -549,7 +600,7 @@
       position: absolute;
       top: 0;
       height: 100%;
-      background: linear-gradient(180deg, #2c241a, var(--line));
+      background: var(--stroke);
       border-radius: 3px;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.28);
     }
@@ -600,7 +651,7 @@
       align-items: stretch;
       margin: 14px 0;
       padding: 14px;
-      background: linear-gradient(180deg, rgba(255, 253, 247, 0.7), rgba(244, 233, 210, 0.55));
+      background: var(--soft-panel);
       border: 1px solid rgba(138, 32, 27, 0.2);
       border-radius: 10px;
     }
@@ -614,7 +665,7 @@
       gap: 4px;
       border: 1.5px solid var(--cinnabar-deep);
       border-radius: 8px;
-      background: linear-gradient(180deg, #fff8ea, #f0e3c8);
+      background: var(--emblem-grad);
       box-shadow: inset 0 0 0 3px rgba(201, 162, 75, 0.18);
       font-family: "Ma Shan Zheng", serif;
       color: var(--cinnabar-deep);
@@ -645,7 +696,7 @@
       gap: 14px;
       margin: 12px 0 4px;
       padding: 12px;
-      background: linear-gradient(180deg, rgba(255, 253, 247, 0.6), rgba(244, 233, 210, 0.45));
+      background: var(--soft-panel);
       border: 1px solid rgba(138, 32, 27, 0.18);
       border-radius: 10px;
     }
@@ -693,7 +744,7 @@
     .mini-line { position: relative; width: 74px; height: 8px; }
     .m-solid, .m-broken-l, .m-broken-r {
       position: absolute; top: 0; height: 100%;
-      background: linear-gradient(180deg, #2c241a, var(--line));
+      background: var(--stroke);
       border-radius: 2px;
     }
     .m-solid { width: 100%; left: 0; }
@@ -835,6 +886,8 @@
     <div class="rod" aria-hidden="true"></div>
     <main class="app">
       <header class="hero">
+        <button class="theme-toggle" id="themeToggle" type="button"
+          aria-label="Toggle day / night" title="Day / Night">☯</button>
         <div class="seal" aria-hidden="true">易</div>
         <svg class="taiji" viewBox="0 0 200 200" role="img" aria-label="Taiji yin-yang">
           <defs>
