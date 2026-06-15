@@ -1,0 +1,788 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cycle of Change</title>
+  <style>
+    :root {
+      --bg: #f4efe3;
+      --panel: #fffaf0;
+      --ink: #1e1b18;
+      --muted: #655d54;
+      --accent: #a8582c;
+      --accent-2: #3f6c61;
+      --line: #24201b;
+      --card-shadow: 0 12px 30px rgba(25, 16, 7, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Trebuchet MS", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 15% 20%, rgba(168, 88, 44, 0.08), transparent 36%),
+        radial-gradient(circle at 85% 70%, rgba(63, 108, 97, 0.08), transparent 32%),
+        var(--bg);
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .app {
+      width: min(860px, 100%);
+      background: linear-gradient(155deg, #fffaf0, #f6f0e7);
+      border: 1px solid #d8ccbb;
+      border-radius: 18px;
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+    }
+
+    .hero {
+      padding: 26px 28px 10px;
+      border-bottom: 1px solid #ddcfbb;
+      background: linear-gradient(180deg, rgba(201, 173, 128, 0.18), rgba(255, 255, 255, 0));
+    }
+
+    h1 {
+      margin: 0;
+      letter-spacing: 0.02em;
+      font-size: clamp(1.5rem, 2.5vw, 2.1rem);
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    .subtitle {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px;
+      padding: 20px 20px 24px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid #decfb8;
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.88rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    input[type="date"] {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid #bead94;
+      border-radius: 10px;
+      font: inherit;
+      color: var(--ink);
+      background: #fff;
+      margin-bottom: 12px;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font: inherit;
+      cursor: pointer;
+      background: var(--accent);
+      color: #fff;
+      transition: transform 0.15s ease, opacity 0.2s ease;
+    }
+
+    button.secondary {
+      background: var(--accent-2);
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button:active { transform: translateY(1px); }
+
+    .meta {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(120px, 1fr));
+      gap: 10px;
+      margin: 14px 0;
+    }
+
+    .metric {
+      background: #fff;
+      border: 1px solid #e3d7c6;
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    .metric h3 {
+      margin: 0;
+      font-size: 0.79rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .metric p {
+      margin: 4px 0 0;
+      font-size: 1.08rem;
+      font-weight: 600;
+    }
+
+    .hexagram {
+      margin-top: 8px;
+      min-height: 186px;
+      display: grid;
+      gap: 10px;
+      align-content: center;
+      justify-content: center;
+      padding: 10px;
+      background: linear-gradient(180deg, #fffdf8, #f9f2e7);
+      border: 1px solid #e4d8c6;
+      border-radius: 12px;
+    }
+
+    .hex-line {
+      position: relative;
+      width: 180px;
+      height: 16px;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      transform-origin: center;
+      opacity: 0;
+      transform: translateY(6px);
+    }
+
+    .hex-line.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .solid,
+    .broken-left,
+    .broken-right {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      background: var(--line);
+      border-radius: 999px;
+    }
+
+    .solid {
+      width: 100%;
+      left: 0;
+    }
+
+    .broken-left { width: 43%; left: 0; }
+    .broken-right { width: 43%; right: 0; }
+
+    .line-changing {
+      outline: 2px dashed #c88557;
+      outline-offset: 3px;
+    }
+
+    .result h2 {
+      margin: 6px 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.1rem, 2.3vw, 1.5rem);
+    }
+
+    .result p {
+      margin: 8px 0;
+      line-height: 1.45;
+    }
+
+    .page-nav {
+      display: flex;
+      gap: 8px;
+      margin: 10px 0 12px;
+    }
+
+    .page-btn {
+      background: #cdbba3;
+      color: #2f271f;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+    }
+
+    .page-btn.active {
+      background: var(--accent-2);
+      color: #fff;
+    }
+
+    .prediction-page {
+      display: none;
+      animation: pageIn 0.22s ease;
+    }
+
+    .prediction-page.active {
+      display: block;
+    }
+
+    .extras-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(120px, 1fr));
+      gap: 10px;
+      margin: 8px 0 12px;
+    }
+
+    .extra {
+      background: #fff;
+      border: 1px solid #e3d7c6;
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    .extra h3 {
+      margin: 0;
+      font-size: 0.79rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .extra p {
+      margin: 4px 0 0;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    @keyframes pageIn {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .disclaimer {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      border-top: 1px dashed #dbcdb8;
+      padding-top: 8px;
+    }
+
+    @media (max-width: 640px) {
+      body { padding: 12px; }
+      .hero { padding: 18px 16px 6px; }
+      .grid { padding: 14px; }
+      .hex-line { width: 150px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <h1>Cycle of Change</h1>
+      <p class="subtitle">A deterministic reflection engine inspired by the 64 hexagrams of the Yijing.</p>
+    </header>
+
+    <section class="grid">
+      <article class="panel">
+        <label for="birthday">Birthday</label>
+        <input id="birthday" type="date" required />
+
+        <label for="today">Today</label>
+        <input id="today" type="date" required />
+
+        <div class="button-row">
+          <button id="castBtn">Cast Today</button>
+          <button id="shareBtn" class="secondary" type="button">Share Result</button>
+        </div>
+
+        <p class="meta" id="streakText">Daily streak: 0</p>
+      </article>
+
+      <article class="panel result" id="resultPanel" aria-live="polite">
+        <h2>Enter your birthday and cast your day.</h2>
+        <nav class="page-nav">
+          <button class="page-btn active" id="page1Btn" type="button">Page 1: Core</button>
+          <button class="page-btn" id="page2Btn" type="button">Page 2: Guidance</button>
+        </nav>
+
+        <section class="prediction-page active" id="page1">
+          <div class="hexagram" id="hexagramCanvas"></div>
+
+          <section class="metrics">
+            <div class="metric">
+              <h3>Momentum</h3>
+              <p id="momentumText">-</p>
+            </div>
+            <div class="metric">
+              <h3>Stability</h3>
+              <p id="stabilityText">-</p>
+            </div>
+            <div class="metric">
+              <h3>Yin / Yang</h3>
+              <p id="balanceText">-</p>
+            </div>
+            <div class="metric">
+              <h3>Change Line</h3>
+              <p id="changeLineText">-</p>
+            </div>
+          </section>
+
+          <p id="interpretationText"></p>
+          <p id="reflectionText"></p>
+        </section>
+
+        <section class="prediction-page" id="page2">
+          <section class="extras-grid">
+            <div class="extra">
+              <h3>Lucky Number</h3>
+              <p id="luckyNumberText">-</p>
+            </div>
+            <div class="extra">
+              <h3>Lucky Color</h3>
+              <p id="luckyColorText">-</p>
+            </div>
+            <div class="extra">
+              <h3>Active Element</h3>
+              <p id="elementText">-</p>
+            </div>
+            <div class="extra">
+              <h3>Best Time Block</h3>
+              <p id="timeBlockText">-</p>
+            </div>
+          </section>
+          <p id="actionCueText"></p>
+          <p id="avoidCueText"></p>
+        </section>
+
+        <p class="disclaimer">This tool is for pattern-based reflection, not prediction or factual claims.</p>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const hexagrams = [
+      ["The Creative", "Strong initiative can be useful when paired with restraint."],
+      ["The Receptive", "Listening and support unlock progress more than force."],
+      ["Difficulty at Beginning", "Start small and make the next clear move."],
+      ["Youthful Folly", "Curiosity beats certainty in unclear terrain."],
+      ["Waiting", "Prepare quietly while timing matures."],
+      ["Conflict", "Clarify boundaries before escalating effort."],
+      ["The Army", "Discipline and role clarity prevent drift."],
+      ["Holding Together", "Reliable alliances outperform solo strain."],
+      ["Small Taming", "Tiny constraints can sharpen focus."],
+      ["Treading", "Proceed with care through sensitive ground."],
+      ["Peace", "What is balanced can be gently expanded."],
+      ["Standstill", "Pause large pushes and remove friction first."],
+      ["Fellowship", "Shared purpose turns noise into direction."],
+      ["Great Possession", "Use abundance with responsibility."],
+      ["Modesty", "Measured tone keeps momentum sustainable."],
+      ["Enthusiasm", "Energy rises when intention is concrete."],
+      ["Following", "Adaptation now can preserve long-term agency."],
+      ["Work on the Decayed", "Repair neglected systems before scaling."],
+      ["Approach", "Near-term openings reward steady engagement."],
+      ["Contemplation", "Step back to see the true pattern."],
+      ["Biting Through", "Resolve blockers directly and precisely."],
+      ["Grace", "Presentation matters, but substance must lead."],
+      ["Splitting Apart", "Release what no longer supports growth."],
+      ["Return", "A small reset can restore direction."],
+      ["Innocence", "Act simply and avoid over-engineering."],
+      ["Great Taming", "Store strength until the right moment."],
+      ["Nourishment", "Feed what feeds your core commitments."],
+      ["Great Preponderance", "Carry weight carefully and temporarily."],
+      ["The Abysmal", "Consistency is safety in uncertain cycles."],
+      ["The Clinging", "Clarity attracts clarity; keep signals clean."],
+      ["Influence", "Gentle attraction works better than pressure."],
+      ["Duration", "Rhythm and repetition create durable outcomes."],
+      ["Retreat", "Strategic withdrawal protects future wins."],
+      ["Great Power", "Use force only where alignment is high."],
+      ["Progress", "Visibility increases; stay grounded in essentials."],
+      ["Darkening of Light", "Protect insight when conditions are harsh."],
+      ["Family", "Stable roles and care reinforce the system."],
+      ["Opposition", "Difference can still produce constructive tension."],
+      ["Obstruction", "Reroute around hard constraints."],
+      ["Deliverance", "Relief follows when complexity is reduced."],
+      ["Decrease", "Intentional reduction can strengthen fundamentals."],
+      ["Increase", "Small gains compound when directed wisely."],
+      ["Breakthrough", "Speak truth cleanly, then act."],
+      ["Coming to Meet", "Unexpected inputs require discernment."],
+      ["Gathering Together", "Concentrated effort amplifies impact."],
+      ["Pushing Upward", "Slow ascent beats unstable acceleration."],
+      ["Oppression", "Conserve energy and remove hidden drains."],
+      ["The Well", "Return to source habits that sustain you."],
+      ["Revolution", "Update assumptions when evidence changes."],
+      ["The Cauldron", "Transform raw effort into shared value."],
+      ["The Arousing", "Shock can catalyze overdue movement."],
+      ["Keeping Still", "Stillness protects judgment under pressure."],
+      ["Development", "Organic growth prefers patience over forcing."],
+      ["Marrying Maiden", "Fit timing and role before commitment."],
+      ["Abundance", "Peak moments require intelligent distribution."],
+      ["The Wanderer", "Stay adaptable while preserving core identity."],
+      ["The Gentle", "Influence works through consistency and tone."],
+      ["The Joyous", "Lightness can open locked conversations."],
+      ["Dispersion", "Break concentration where stagnation forms."],
+      ["Limitation", "Rules can protect freedom when chosen well."],
+      ["Inner Truth", "Integrity aligns action and trust."],
+      ["Small Preponderance", "Attend to detail before broad moves."],
+      ["After Completion", "Secure gains; avoid premature victory laps."],
+      ["Before Completion", "The final stretch needs extra precision."]
+    ];
+
+    const reflectionPrompts = [
+      "Where can you replace force with better timing?",
+      "What is one thing to simplify before acting?",
+      "Which commitment needs consistency more than intensity?",
+      "Where can you adapt without losing your direction?",
+      "What boundary would protect your energy today?",
+      "What small repair would unlock larger movement?",
+      "What are you avoiding that would bring clarity?",
+      "How can you align your next action with your values?"
+    ];
+
+    const birthdayInput = document.getElementById("birthday");
+    const todayInput = document.getElementById("today");
+    const castBtn = document.getElementById("castBtn");
+    const shareBtn = document.getElementById("shareBtn");
+    const page1Btn = document.getElementById("page1Btn");
+    const page2Btn = document.getElementById("page2Btn");
+    const page1 = document.getElementById("page1");
+    const page2 = document.getElementById("page2");
+
+    const streakText = document.getElementById("streakText");
+    const resultPanel = document.getElementById("resultPanel");
+    const hexagramCanvas = document.getElementById("hexagramCanvas");
+    const momentumText = document.getElementById("momentumText");
+    const stabilityText = document.getElementById("stabilityText");
+    const balanceText = document.getElementById("balanceText");
+    const changeLineText = document.getElementById("changeLineText");
+    const interpretationText = document.getElementById("interpretationText");
+    const reflectionText = document.getElementById("reflectionText");
+    const luckyNumberText = document.getElementById("luckyNumberText");
+    const luckyColorText = document.getElementById("luckyColorText");
+    const elementText = document.getElementById("elementText");
+    const timeBlockText = document.getElementById("timeBlockText");
+    const actionCueText = document.getElementById("actionCueText");
+    const avoidCueText = document.getElementById("avoidCueText");
+
+    const luckyColors = ["Amber", "Jade", "Ocean Blue", "Slate", "Crimson", "Gold", "Moss", "Pearl"];
+    const elements = ["Wood", "Fire", "Earth", "Metal", "Water"];
+    const timeBlocks = [
+      "05:00-07:00",
+      "07:00-09:00",
+      "09:00-11:00",
+      "11:00-13:00",
+      "13:00-15:00",
+      "15:00-17:00",
+      "17:00-19:00",
+      "19:00-21:00",
+      "21:00-23:00"
+    ];
+    const actionCues = [
+      "Complete one difficult task first.",
+      "Start a conversation you have delayed.",
+      "Tidy one system that supports your week.",
+      "Draft before you optimize details.",
+      "Commit to one clear boundary today.",
+      "Use a short walk to reset your focus."
+    ];
+    const avoidCues = [
+      "Avoid rushing decisions in the first hour.",
+      "Avoid saying yes without checking bandwidth.",
+      "Avoid overexplaining what is already clear.",
+      "Avoid multitasking during key work blocks.",
+      "Avoid forcing outcomes that need patience.",
+      "Avoid reacting before collecting full context."
+    ];
+
+    const todayISO = new Date().toISOString().slice(0, 10);
+    todayInput.value = todayISO;
+
+    const state = {
+      lastResult: null
+    };
+
+    window.advanceTime = function advanceTime(_ms) {
+      // No simulation clock is needed in this deterministic date-based app.
+      return true;
+    };
+
+    window.render_game_to_text = function renderGameToText() {
+      const payload = {
+        mode: state.lastResult ? "cast" : "idle",
+        coordinate_system: "N/A (form-driven interface; no spatial playfield)",
+        inputs: {
+          birthday: birthdayInput.value || null,
+          today: todayInput.value || null
+        },
+        result: state.lastResult
+      };
+      return JSON.stringify(payload);
+    };
+
+    updateStreakLabel();
+    setPredictionPage(1);
+
+    page1Btn.addEventListener("click", () => setPredictionPage(1));
+    page2Btn.addEventListener("click", () => setPredictionPage(2));
+
+    castBtn.addEventListener("click", () => {
+      const birthday = birthdayInput.value;
+      const today = todayInput.value;
+
+      if (!birthday || !today) {
+        resultPanel.querySelector("h2").textContent = "Please provide both dates.";
+        return;
+      }
+
+      const lifeNumber = digitSum(birthday);
+      const todayNumber = digitSum(today);
+      const raw = (lifeNumber * todayNumber) % 64;
+      const hexNumber = raw === 0 ? 64 : raw;
+
+      const lines = buildLines(hexNumber);
+      const primeDay = isPrime(todayNumber);
+      const changeLine = primeDay ? ((todayNumber % 6) || 6) : null;
+      const displayLines = primeDay ? flipLine(lines, changeLine) : lines.slice();
+
+      const yangCount = displayLines.filter(Boolean).length;
+      const yinCount = 6 - yangCount;
+      const balanceScore = Math.round((yangCount / 6) * 100);
+      const stability = clamp(Math.round(100 - Math.abs(yangCount - 3) * 18 + (todayNumber % 7)), 0, 100);
+      const momentumIndex = ((todayNumber - lifeNumber) % 27 + 27) % 27 - 13;
+
+      const momentumLabel = momentumIndex > 4
+        ? "Expansion"
+        : momentumIndex < -4
+          ? "Contraction"
+          : "Neutral";
+
+      const [name, line] = hexagrams[hexNumber - 1];
+      const reflection = reflectionPrompts[(hexNumber + todayNumber) % reflectionPrompts.length];
+      const luckyNumber = ((lifeNumber + todayNumber + hexNumber) % 9) + 1;
+      const luckyColor = luckyColors[(hexNumber + todayNumber) % luckyColors.length];
+      const activeElement = elements[(lifeNumber + hexNumber) % elements.length];
+      const bestTimeBlock = timeBlocks[(todayNumber + Math.abs(momentumIndex)) % timeBlocks.length];
+      const actionCue = actionCues[(hexNumber + lifeNumber) % actionCues.length];
+      const avoidCue = avoidCues[(todayNumber + yinCount) % avoidCues.length];
+
+      renderHexagram(displayLines, changeLine);
+      resultPanel.querySelector("h2").textContent = `Hexagram ${hexNumber} - ${name}`;
+      momentumText.textContent = `${momentumLabel} (${momentumIndex >= 0 ? "+" : ""}${momentumIndex})`;
+      stabilityText.textContent = `${stability}%`;
+      balanceText.textContent = `${yinCount} Yin / ${yangCount} Yang`;
+      changeLineText.textContent = changeLine ? `Line ${changeLine} flips (prime-day rule)` : "None";
+      interpretationText.textContent = `"${line}"`;
+      reflectionText.textContent = `Reflection: ${reflection}`;
+      luckyNumberText.textContent = String(luckyNumber);
+      luckyColorText.textContent = luckyColor;
+      elementText.textContent = activeElement;
+      timeBlockText.textContent = bestTimeBlock;
+      actionCueText.textContent = `Action cue: ${actionCue}`;
+      avoidCueText.textContent = `Avoid pattern: ${avoidCue}`;
+      setPredictionPage(1);
+
+      state.lastResult = {
+        birthday,
+        today,
+        hexNumber,
+        name,
+        momentumLabel,
+        momentumIndex,
+        stability,
+        yinCount,
+        yangCount,
+        changeLine,
+        interpretation: line,
+        reflection,
+        luckyNumber,
+        luckyColor,
+        activeElement,
+        bestTimeBlock,
+        actionCue,
+        avoidCue
+      };
+
+      updateStreakOnCast(today);
+      updateStreakLabel();
+    });
+
+    shareBtn.addEventListener("click", async () => {
+      if (!state.lastResult) {
+        alert("Cast today first.");
+        return;
+      }
+
+      const r = state.lastResult;
+      const text = [
+        `Cycle of Change - ${r.today}`,
+        `Hexagram ${r.hexNumber}: ${r.name}`,
+        `Momentum: ${r.momentumLabel} (${r.momentumIndex >= 0 ? "+" : ""}${r.momentumIndex})`,
+        `Stability: ${r.stability}%`,
+        `Balance: ${r.yinCount} Yin / ${r.yangCount} Yang`,
+        r.changeLine ? `Change Line: ${r.changeLine}` : "Change Line: None",
+        `Lucky Number: ${r.luckyNumber}`,
+        `Lucky Color: ${r.luckyColor}`,
+        `Active Element: ${r.activeElement}`,
+        `Best Time Block: ${r.bestTimeBlock}`,
+        `Action Cue: ${r.actionCue}`,
+        `Avoid Pattern: ${r.avoidCue}`,
+        `Interpretation: ${r.interpretation}`,
+        `Reflection: ${r.reflection}`
+      ].join("\n");
+
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: "Cycle of Change", text });
+          return;
+        } catch (error) {
+          // User can cancel share; clipboard fallback below.
+        }
+      }
+
+      try {
+        await navigator.clipboard.writeText(text);
+        alert("Result copied to clipboard.");
+      } catch (error) {
+        alert("Could not share automatically.\n\n" + text);
+      }
+    });
+
+    function digitSum(dateString) {
+      return dateString
+        .replace(/-/g, "")
+        .split("")
+        .reduce((sum, char) => sum + Number(char), 0);
+    }
+
+    function buildLines(hexNumber) {
+      const bits = (hexNumber - 1).toString(2).padStart(6, "0");
+      // Bottom line first in binary; reverse for top-down rendering.
+      return bits
+        .split("")
+        .map((bit) => bit === "1")
+        .reverse();
+    }
+
+    function flipLine(lines, lineNumber) {
+      const copy = lines.slice();
+      const indexFromTop = lineNumber - 1;
+      copy[indexFromTop] = !copy[indexFromTop];
+      return copy;
+    }
+
+    function renderHexagram(lines, changeLine) {
+      hexagramCanvas.innerHTML = "";
+
+      lines.forEach((isYang, idx) => {
+        const line = document.createElement("div");
+        line.className = "hex-line";
+
+        if (changeLine === idx + 1) {
+          line.classList.add("line-changing");
+        }
+
+        if (isYang) {
+          const solid = document.createElement("span");
+          solid.className = "solid";
+          line.appendChild(solid);
+        } else {
+          const left = document.createElement("span");
+          left.className = "broken-left";
+          const right = document.createElement("span");
+          right.className = "broken-right";
+          line.append(left, right);
+        }
+
+        hexagramCanvas.appendChild(line);
+
+        setTimeout(() => {
+          line.classList.add("show");
+        }, idx * 70);
+      });
+    }
+
+    function isPrime(n) {
+      if (n <= 1) return false;
+      if (n <= 3) return true;
+      if (n % 2 === 0 || n % 3 === 0) return false;
+
+      for (let i = 5; i * i <= n; i += 6) {
+        if (n % i === 0 || n % (i + 2) === 0) return false;
+      }
+      return true;
+    }
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function updateStreakOnCast(isoDate) {
+      const todayMs = dateToUTC(isoDate);
+      const raw = localStorage.getItem("coc_streak");
+      let streak = 1;
+
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        const lastMs = dateToUTC(parsed.lastCastDate);
+        const dayDiff = Math.round((todayMs - lastMs) / 86400000);
+
+        if (dayDiff === 0) {
+          streak = parsed.streak;
+        } else if (dayDiff === 1) {
+          streak = parsed.streak + 1;
+        }
+      }
+
+      localStorage.setItem(
+        "coc_streak",
+        JSON.stringify({ streak, lastCastDate: isoDate })
+      );
+    }
+
+    function updateStreakLabel() {
+      const raw = localStorage.getItem("coc_streak");
+      if (!raw) {
+        streakText.textContent = "Daily streak: 0";
+        return;
+      }
+
+      try {
+        const parsed = JSON.parse(raw);
+        streakText.textContent = `Daily streak: ${parsed.streak}`;
+      } catch (error) {
+        streakText.textContent = "Daily streak: 0";
+      }
+    }
+
+    function dateToUTC(isoDate) {
+      const [year, month, day] = isoDate.split("-").map(Number);
+      return Date.UTC(year, month - 1, day);
+    }
+
+    function setPredictionPage(pageNumber) {
+      const showFirst = pageNumber === 1;
+      page1.classList.toggle("active", showFirst);
+      page2.classList.toggle("active", !showFirst);
+      page1Btn.classList.toggle("active", showFirst);
+      page2Btn.classList.toggle("active", !showFirst);
+    }
+  </script>
+</body>
+</html>
