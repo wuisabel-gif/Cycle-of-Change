@@ -38,7 +38,7 @@
       min-height: 100vh;
       padding: 38px 20px 56px;
       display: grid;
-      place-items: center;
+      place-items: start center;
       background-color: #2a1d12;
       background-image:
         radial-gradient(1100px 760px at 50% -8%, rgba(201, 162, 75, 0.16), transparent 60%),
@@ -533,6 +533,50 @@
     }
     #reflectionText { color: var(--jade); font-weight: 600; }
 
+    /* Classic text (Judgment + Image) with the stacked nature-symbol emblem */
+    .classic {
+      display: flex;
+      gap: 14px;
+      align-items: stretch;
+      margin: 14px 0;
+      padding: 14px;
+      background: linear-gradient(180deg, rgba(255, 253, 247, 0.7), rgba(244, 233, 210, 0.55));
+      border: 1px solid rgba(138, 32, 27, 0.2);
+      border-radius: 10px;
+    }
+    .classic-emblem {
+      flex: 0 0 auto;
+      width: 56px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      border: 1.5px solid var(--cinnabar-deep);
+      border-radius: 8px;
+      background: linear-gradient(180deg, #fff8ea, #f0e3c8);
+      box-shadow: inset 0 0 0 3px rgba(201, 162, 75, 0.18);
+      font-family: "Ma Shan Zheng", serif;
+      color: var(--cinnabar-deep);
+    }
+    .classic-emblem .em-char { font-size: 1.7rem; line-height: 1; }
+    .classic-emblem .em-div {
+      width: 70%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cinnabar), transparent);
+    }
+    .classic-body { flex: 1; min-width: 0; }
+    .ct-line { margin: 0 0 8px; font-size: 0.92rem; line-height: 1.5; color: var(--ink-soft); }
+    .ct-line:last-child { margin-bottom: 0; }
+    .ct-label {
+      display: inline-block;
+      font-family: "Ma Shan Zheng", serif;
+      color: var(--cinnabar);
+      font-size: 0.92rem;
+      margin-right: 8px;
+      letter-spacing: 0.04em;
+    }
+
     .page-nav {
       display: flex;
       gap: 8px;
@@ -738,6 +782,15 @@
             </section>
 
             <p id="interpretationText"></p>
+
+            <div class="classic" id="classicBlock" hidden>
+              <div class="classic-emblem" id="hexEmblem" aria-hidden="true"></div>
+              <div class="classic-body">
+                <p class="ct-line"><span class="ct-label">卦辭 · Judgment</span><span id="judgmentText"></span></p>
+                <p class="ct-line"><span class="ct-label">象辭 · Image</span><span id="imageText"></span></p>
+              </div>
+            </div>
+
             <p id="reflectionText"></p>
           </section>
 
@@ -864,6 +917,75 @@
       { hz: "中孚", py: "Zhōngfú" }, { hz: "小過", py: "Xiǎoguò" }, { hz: "既濟", py: "Jìjì" }, { hz: "未濟", py: "Wèijì" }
     ];
 
+    // Faithful condensed renderings of each hexagram's Judgment (卦辭) and Image (象辭),
+    // after the Wilhelm / Baynes translation of the Book of Changes.
+    const hexText = [
+      { j: "The Creative works sublime success, furthering through perseverance.", img: "Heaven moves with strength; thus the superior person makes themselves strong and untiring." },
+      { j: "The Receptive brings sublime success through the perseverance of a mare.", img: "The earth's condition is receptive devotion; thus the superior person carries the outer world with breadth." },
+      { j: "Difficulty at the beginning works supreme success; appoint helpers, do not go forward.", img: "Clouds and thunder; the superior person brings order out of confusion." },
+      { j: "The young fool seeks me; at the first oracle I inform them. Perseverance furthers.", img: "A spring rises at the foot of the mountain; the superior person fosters character with thoroughness." },
+      { j: "Waiting: if you are sincere, you have light and success. It furthers one to cross the great water.", img: "Clouds rise up to heaven; the superior person eats, drinks, and is joyously at ease." },
+      { j: "Conflict: you are sincere but obstructed. A cautious halt halfway brings good fortune.", img: "Heaven and water go their opposite ways; the superior person considers the beginning of every affair." },
+      { j: "The army needs perseverance and a strong leader; then good fortune without blame.", img: "Water in the earth; the superior person increases their masses by generosity toward the people." },
+      { j: "Holding together brings good fortune; inquire whether you have sublime constancy.", img: "Water over the earth; the ancient kings established the states and stayed close to the lords." },
+      { j: "The taming power of the small has success. Dense clouds, no rain from our western region.", img: "The wind drives across heaven; the superior person refines the outward aspect of their nature." },
+      { j: "Treading upon the tail of the tiger; it does not bite. Success.", img: "Heaven above, the lake below; the superior person discriminates high and low and steadies the people." },
+      { j: "Peace: the small departs, the great approaches. Good fortune, success.", img: "Heaven and earth unite; the ruler completes the course of heaven and earth and aids the people." },
+      { j: "Standstill: the great departs and the small approaches; this does not further the upright.", img: "Heaven and earth do not unite; the superior person falls back on inner worth to escape hardship." },
+      { j: "Fellowship with people in the open. Success. It furthers one to cross the great water.", img: "Heaven together with fire; the superior person organizes the clans and makes clear distinctions." },
+      { j: "Possession in great measure: supreme success.", img: "Fire in heaven above; the superior person curbs evil, furthers good, and obeys heaven's will." },
+      { j: "Modesty creates success; the superior person carries things through to the end.", img: "Within the earth, a mountain; the superior person reduces the too-much and augments the too-little." },
+      { j: "Enthusiasm: it furthers one to install helpers and to set armies marching.", img: "Thunder resounds out of the earth; the ancient kings made music to honor merit." },
+      { j: "Following has supreme success. Perseverance furthers; no blame.", img: "Thunder in the middle of the lake; the superior person rests indoors when nightfall comes." },
+      { j: "Work on what has been spoiled has supreme success; heed the days before and after.", img: "The wind blows low on the mountain; the superior person stirs the people and strengthens their spirit." },
+      { j: "Approach has sublime success. When the eighth month comes, there will be misfortune.", img: "The earth above the lake; the superior person is inexhaustible in the will to teach." },
+      { j: "Contemplation: the ablution made but not yet the offering; full of trust they look up.", img: "The wind blows over the earth; the ancient kings visited the regions and gave instruction." },
+      { j: "Biting through has success. It is favorable to let justice be administered.", img: "Thunder and lightning; the ancient kings made firm the laws through clear penalties." },
+      { j: "Grace has success. In small matters it is favorable to undertake something.", img: "Fire at the foot of the mountain; the superior person clears affairs but dares not decide disputes." },
+      { j: "Splitting apart: it does not further one to go anywhere.", img: "The mountain rests on the earth; those above secure their place by giving to those below." },
+      { j: "Return: success. Going out and coming in without error; the friend comes without blame.", img: "Thunder within the earth; the ancient kings closed the passes at the time of return." },
+      { j: "Innocence: supreme success. If one is not as one should be, nothing furthers.", img: "Under heaven thunder rolls; the ancient kings nourished all beings in tune with the time." },
+      { j: "The taming power of the great: perseverance furthers; it furthers one to cross the great water.", img: "Heaven within the mountain; the superior person studies the words and deeds of the past." },
+      { j: "Nourishment: perseverance brings good fortune. Heed what you give nourishment to.", img: "At the foot of the mountain, thunder; the superior person is careful of words and temperate in eating." },
+      { j: "Preponderance of the great: the ridgepole sags. It furthers one to have a goal. Success.", img: "The lake rises above the trees; the superior person stands alone and renounces the world without sorrow." },
+      { j: "The Abysmal repeated: if sincere, the heart finds success and what you do succeeds.", img: "Water flows on without halt; the superior person walks in lasting virtue and teaches others." },
+      { j: "The Clinging: perseverance furthers and brings success. Care of the cow brings good fortune.", img: "Brightness rises twice; the great person illumines the four quarters with lasting light." },
+      { j: "Influence: success. Perseverance furthers; to take a maiden brings good fortune.", img: "A lake upon the mountain; the superior person receives others by their readiness to listen." },
+      { j: "Duration: success, no blame. Perseverance furthers; it furthers one to have a goal.", img: "Thunder and wind; the superior person stands firm and does not change their direction." },
+      { j: "Retreat: success. In what is small, perseverance furthers.", img: "Mountain under heaven; the superior person keeps the inferior at a distance with reserve, not anger." },
+      { j: "The power of the great: perseverance furthers.", img: "Thunder in heaven above; the superior person does not tread paths that defy order." },
+      { j: "Progress: the prince is honored with horses and granted audience three times in a day.", img: "The sun rises over the earth; the superior person brightens their own bright virtue." },
+      { j: "Darkening of the light: in adversity it furthers one to be persevering.", img: "The light has sunk into the earth; the superior person veils their light, yet still shines." },
+      { j: "The family: the perseverance of the woman furthers.", img: "Wind comes forth from fire; the superior person has substance in words and constancy in conduct." },
+      { j: "Opposition: in small matters, good fortune.", img: "Fire above, the lake below; amid all fellowship the superior person keeps their individuality." },
+      { j: "Obstruction: the southwest furthers, the northeast does not. See the great person.", img: "Water on the mountain; the superior person turns attention inward and molds their character." },
+      { j: "Deliverance: the southwest furthers. If nowhere to go, return brings good fortune.", img: "Thunder and rain set in; the superior person pardons mistakes and forgives misdeeds." },
+      { j: "Decrease with sincerity brings supreme good fortune without blame.", img: "At the foot of the mountain, the lake; the superior person controls anger and restrains the instincts." },
+      { j: "Increase: it furthers one to undertake something and to cross the great water.", img: "Wind and thunder; seeing good, the superior person imitates it; having faults, they shed them." },
+      { j: "Breakthrough: resolutely make the matter known at the court of the king.", img: "The lake has risen to heaven; the superior person dispenses riches and rests not on their virtue." },
+      { j: "Coming to meet: the maiden is powerful; one should not marry such a maiden.", img: "Under heaven, wind; the prince acts and spreads commands to the four quarters." },
+      { j: "Gathering together: success. The king approaches his temple; see the great person.", img: "The lake rises over the earth; the superior person renews their weapons against the unforeseen." },
+      { j: "Pushing upward has supreme success. See the great person; fear not.", img: "Within the earth, wood grows; the superior person heaps up small things to reach the high and great." },
+      { j: "Oppression: success and perseverance. The great person brings good fortune; words are not believed.", img: "There is no water in the lake; the superior person stakes their life on following their will." },
+      { j: "The Well: the town may change, but the well does not. It neither decreases nor increases.", img: "Water over wood; the superior person encourages the people at work and urges them to help one another." },
+      { j: "Revolution: on your own day you are believed. Supreme success through perseverance.", img: "Fire in the lake; the superior person sets the calendar in order and makes the seasons clear." },
+      { j: "The Cauldron: supreme good fortune. Success.", img: "Fire over wood; the superior person consolidates their fate by making their position correct." },
+      { j: "Shock brings success. It comes—oh, oh!—then laughing words; it frightens for a hundred miles.", img: "Thunder repeated; in fear and trembling the superior person sets their life in order and examines themselves." },
+      { j: "Keeping still: keeping the back still, one no longer feels the body. No blame.", img: "Mountains standing close together; the superior person does not let thoughts go beyond their situation." },
+      { j: "Development: the maiden is given in marriage. Good fortune; perseverance furthers.", img: "On the mountain, a tree; the superior person abides in dignity and virtue to improve the mores." },
+      { j: "The marrying maiden: undertakings bring misfortune; nothing that would further.", img: "Thunder over the lake; the superior person understands the transitory in light of the eternal end." },
+      { j: "Abundance has success. Be not sad; be like the sun at midday.", img: "Both thunder and lightning come; the superior person decides lawsuits and carries out punishments." },
+      { j: "The Wanderer: success through smallness; perseverance brings the wanderer good fortune.", img: "Fire on the mountain; the superior person is clear-minded and cautious in penalties and protracts no suits." },
+      { j: "The Gentle: success through what is small. It furthers one to see the great person.", img: "Winds following one another; the superior person spreads commands and carries out their undertakings." },
+      { j: "The Joyous: success. Perseverance is favorable.", img: "Lakes resting one on the other; the superior person joins with friends for discussion and practice." },
+      { j: "Dispersion: success. The king approaches his temple; cross the great water.", img: "The wind drives over the water; the ancient kings sacrificed to the Lord and built temples." },
+      { j: "Limitation: success. Galling limitation must not be persevered in.", img: "Water over the lake; the superior person creates number and measure and examines the nature of virtue." },
+      { j: "Inner truth: pigs and fishes. Good fortune; it furthers one to cross the great water.", img: "Wind over the lake; the superior person discusses criminal cases to delay executions." },
+      { j: "Small preponderance: the small may be done, the great should not. Better below than above.", img: "Thunder on the mountain; the superior person is exceeding in reverence, mourning, and thrift." },
+      { j: "After completion: success in small matters. At the beginning good fortune, at the end disorder.", img: "Water over fire; the superior person takes thought of misfortune and arms against it beforehand." },
+      { j: "Before completion: success. But if the little fox gets its tail wet, nothing furthers.", img: "Fire over water; the superior person carefully distinguishes things so each finds its place." }
+    ];
+
     const reflectionPrompts = [
       "Where can you replace force with better timing?",
       "What is one thing to simplify before acting?",
@@ -894,6 +1016,10 @@
     const changeLineText = document.getElementById("changeLineText");
     const interpretationText = document.getElementById("interpretationText");
     const reflectionText = document.getElementById("reflectionText");
+    const classicBlock = document.getElementById("classicBlock");
+    const hexEmblem = document.getElementById("hexEmblem");
+    const judgmentText = document.getElementById("judgmentText");
+    const imageText = document.getElementById("imageText");
     const luckyNumberText = document.getElementById("luckyNumberText");
     const luckyColorText = document.getElementById("luckyColorText");
     const elementText = document.getElementById("elementText");
@@ -939,14 +1065,14 @@
     // The eight trigrams (bagua), keyed by 3 bits: bottom*4 + middle*2 + top (yang = 1).
     // Each carries its glyph, name, attribute, five-element phase and fengshui direction.
     const trigrams = {
-      7: { glyph: "☰", hz: "乾", py: "Qián", en: "Heaven", element: "Metal", dir: "NW" },
-      6: { glyph: "☱", hz: "兌", py: "Duì", en: "Lake", element: "Metal", dir: "W" },
-      5: { glyph: "☲", hz: "離", py: "Lí", en: "Fire", element: "Fire", dir: "S" },
-      4: { glyph: "☳", hz: "震", py: "Zhèn", en: "Thunder", element: "Wood", dir: "E" },
-      3: { glyph: "☴", hz: "巽", py: "Xùn", en: "Wind", element: "Wood", dir: "SE" },
-      2: { glyph: "☵", hz: "坎", py: "Kǎn", en: "Water", element: "Water", dir: "N" },
-      1: { glyph: "☶", hz: "艮", py: "Gèn", en: "Mountain", element: "Earth", dir: "NE" },
-      0: { glyph: "☷", hz: "坤", py: "Kūn", en: "Earth", element: "Earth", dir: "SW" }
+      7: { glyph: "☰", hz: "乾", py: "Qián", en: "Heaven", nature: "天", element: "Metal", dir: "NW" },
+      6: { glyph: "☱", hz: "兌", py: "Duì", en: "Lake", nature: "澤", element: "Metal", dir: "W" },
+      5: { glyph: "☲", hz: "離", py: "Lí", en: "Fire", nature: "火", element: "Fire", dir: "S" },
+      4: { glyph: "☳", hz: "震", py: "Zhèn", en: "Thunder", nature: "雷", element: "Wood", dir: "E" },
+      3: { glyph: "☴", hz: "巽", py: "Xùn", en: "Wind", nature: "風", element: "Wood", dir: "SE" },
+      2: { glyph: "☵", hz: "坎", py: "Kǎn", en: "Water", nature: "水", element: "Water", dir: "N" },
+      1: { glyph: "☶", hz: "艮", py: "Gèn", en: "Mountain", nature: "山", element: "Earth", dir: "NE" },
+      0: { glyph: "☷", hz: "坤", py: "Kūn", en: "Earth", nature: "地", element: "Earth", dir: "SW" }
     };
 
     // Trigram line patterns, written bottom-to-top (yang = 1).
@@ -1064,6 +1190,13 @@
       balanceText.textContent = `${yinCount} Yin / ${yangCount} Yang`;
       changeLineText.textContent = changeLine ? `Line ${changeLine} flips (prime-day rule)` : "None";
       interpretationText.textContent = `"${line}"`;
+      const classic = hexText[hexNumber - 1];
+      const primary = deriveTrigrams(lines);
+      hexEmblem.innerHTML =
+        `<span class="em-char">${primary.upper.nature}</span><span class="em-div"></span><span class="em-char">${primary.lower.nature}</span>`;
+      judgmentText.textContent = classic.j;
+      imageText.textContent = classic.img;
+      classicBlock.hidden = false;
       reflectionText.textContent = `Reflection: ${reflection}`;
       luckyNumberText.textContent = String(luckyNumber);
       luckyColorText.innerHTML =
@@ -1215,7 +1348,7 @@
           <div>
             <div class="role">${role}</div>
             <div class="tg-name">${t.hz} <span>${t.en}</span></div>
-            <div class="tg-sub">${t.element} · ${t.dir}</div>
+            <div class="tg-sub">${t.nature} · ${t.element} · ${t.dir}</div>
           </div>
         </div>`;
       trigramRow.innerHTML = card("上卦 Upper", upper) + card("下卦 Lower", lower);
