@@ -577,6 +577,82 @@
       letter-spacing: 0.04em;
     }
 
+    /* Transformation: present hexagram becoming its relating (future) hexagram */
+    .transform {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin: 12px 0 4px;
+      padding: 12px;
+      background: linear-gradient(180deg, rgba(255, 253, 247, 0.6), rgba(244, 233, 210, 0.45));
+      border: 1px solid rgba(138, 32, 27, 0.18);
+      border-radius: 10px;
+    }
+    .tf-col { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .tf-label {
+      font-family: "Ma Shan Zheng", serif;
+      font-size: 0.92rem;
+      color: var(--cinnabar);
+      letter-spacing: 0.05em;
+    }
+    .tf-name {
+      font-size: 0.78rem;
+      color: var(--ink-soft);
+      text-align: center;
+      max-width: 96px;
+    }
+    .tf-arrow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      color: var(--gold);
+    }
+    .tf-zhi {
+      font-family: "Ma Shan Zheng", serif;
+      font-size: 1.4rem;
+      color: var(--cinnabar-deep);
+    }
+    .tf-arrowline {
+      width: 34px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--gold-soft), var(--cinnabar));
+      position: relative;
+    }
+    .tf-arrowline::after {
+      content: "";
+      position: absolute;
+      right: -1px; top: 50%;
+      transform: translateY(-50%);
+      border-left: 7px solid var(--cinnabar);
+      border-top: 4px solid transparent;
+      border-bottom: 4px solid transparent;
+    }
+    .mini-hex { display: grid; gap: 4px; }
+    .mini-line { position: relative; width: 74px; height: 8px; }
+    .m-solid, .m-broken-l, .m-broken-r {
+      position: absolute; top: 0; height: 100%;
+      background: linear-gradient(180deg, #2c241a, var(--line));
+      border-radius: 2px;
+    }
+    .m-solid { width: 100%; left: 0; }
+    .m-broken-l { width: 43%; left: 0; }
+    .m-broken-r { width: 43%; right: 0; }
+    .mini-line.hot .m-solid,
+    .mini-line.hot .m-broken-l,
+    .mini-line.hot .m-broken-r {
+      background: linear-gradient(180deg, #d4623a, var(--cinnabar));
+      box-shadow: 0 0 8px rgba(179, 50, 44, 0.65);
+    }
+    .mini-line.morph { animation: lineMorph 0.7s ease 0.15s both; transform-origin: center; }
+    @keyframes lineMorph {
+      0% { transform: rotateX(0) scaleX(1); opacity: 0.2; }
+      45% { transform: rotateX(90deg) scaleX(0.4); opacity: 1; }
+      100% { transform: rotateX(0) scaleX(1); opacity: 1; }
+    }
+    @media (prefers-reduced-motion: reduce) { .mini-line.morph { animation: none; } }
+
     .page-nav {
       display: flex;
       gap: 8px;
@@ -758,6 +834,22 @@
 
             <div class="result-title">
               <div class="hanzi" id="hexHanzi"></div>
+            </div>
+
+            <div class="transform" id="transformRow" hidden>
+              <div class="tf-col">
+                <div class="tf-label">今 Present</div>
+                <div class="mini-hex" id="miniPresent"></div>
+              </div>
+              <div class="tf-arrow" aria-hidden="true">
+                <span class="tf-zhi">之</span>
+                <span class="tf-arrowline"></span>
+              </div>
+              <div class="tf-col">
+                <div class="tf-label">變 Relating</div>
+                <div class="mini-hex" id="miniRelating"></div>
+                <div class="tf-name" id="relatingName"></div>
+              </div>
             </div>
 
             <div class="trigrams" id="trigramRow"></div>
@@ -1026,6 +1118,10 @@
     const timeBlockText = document.getElementById("timeBlockText");
     const baguaRing = document.getElementById("baguaRing");
     const trigramRow = document.getElementById("trigramRow");
+    const transformRow = document.getElementById("transformRow");
+    const miniPresent = document.getElementById("miniPresent");
+    const miniRelating = document.getElementById("miniRelating");
+    const relatingNameEl = document.getElementById("relatingName");
     const coinTray = document.getElementById("coinTray");
     const elementCompass = document.getElementById("elementCompass");
     const wxCenterHz = document.getElementById("wxCenterHz");
@@ -1108,6 +1204,12 @@
     const wxNodes = {};
     renderElementCompass();
 
+    // Reverse lookup: a line pattern's key maps back to its King Wen hexagram number.
+    const lineKeyToHex = {};
+    for (let h = 1; h <= 64; h++) {
+      lineKeyToHex[linesKey(buildLines(h))] = h;
+    }
+
     const todayISO = new Date().toISOString().slice(0, 10);
     todayInput.value = todayISO;
 
@@ -1156,9 +1258,10 @@
       const lines = buildLines(hexNumber);
       const primeDay = isPrime(todayNumber);
       const changeLine = primeDay ? ((todayNumber % 6) || 6) : null;
-      const displayLines = primeDay ? flipLine(lines, changeLine) : lines.slice();
+      const relatingLines = changeLine ? flipLine(lines, changeLine) : null;
+      const relatingNumber = relatingLines ? lineKeyToHex[linesKey(relatingLines)] : null;
 
-      const yangCount = displayLines.filter(Boolean).length;
+      const yangCount = lines.filter(Boolean).length;
       const yinCount = 6 - yangCount;
       const balanceScore = Math.round((yangCount / 6) * 100);
       const stability = clamp(Math.round(100 - Math.abs(yangCount - 3) * 18 + (todayNumber % 7)), 0, 100);
@@ -1178,22 +1281,24 @@
       const activeElement = elements[(lifeNumber + hexNumber) % elements.length];
       const bestTimeBlock = timeBlocks[(todayNumber + Math.abs(momentumIndex)) % timeBlocks.length];
 
-      const { upper, lower } = deriveTrigrams(displayLines);
+      const { upper, lower } = deriveTrigrams(lines);
 
       playCoinToss();
-      renderHexagram(displayLines, changeLine);
+      renderHexagram(lines, changeLine);
+      renderTransformation(lines, relatingLines, changeLine, relatingNumber);
       renderTrigrams(upper, lower);
       hexHanzi.textContent = `${meta.hz} · ${meta.py}`;
       resultPanel.querySelector("h2").textContent = `Hexagram ${hexNumber} - ${name}`;
       momentumText.textContent = `${momentumLabel} (${momentumIndex >= 0 ? "+" : ""}${momentumIndex})`;
       stabilityText.textContent = `${stability}%`;
       balanceText.textContent = `${yinCount} Yin / ${yangCount} Yang`;
-      changeLineText.textContent = changeLine ? `Line ${changeLine} flips (prime-day rule)` : "None";
+      changeLineText.textContent = changeLine
+        ? `Line ${changeLine} → Hexagram ${relatingNumber}`
+        : "None (stable)";
       interpretationText.textContent = `"${line}"`;
       const classic = hexText[hexNumber - 1];
-      const primary = deriveTrigrams(lines);
       hexEmblem.innerHTML =
-        `<span class="em-char">${primary.upper.nature}</span><span class="em-div"></span><span class="em-char">${primary.lower.nature}</span>`;
+        `<span class="em-char">${upper.nature}</span><span class="em-div"></span><span class="em-char">${lower.nature}</span>`;
       judgmentText.textContent = classic.j;
       imageText.textContent = classic.img;
       classicBlock.hidden = false;
@@ -1222,6 +1327,9 @@
         yinCount,
         yangCount,
         changeLine,
+        relatingHexagram: relatingNumber
+          ? `${relatingNumber} ${hexMeta[relatingNumber - 1].hz} ${hexagrams[relatingNumber - 1][0]}`
+          : null,
         interpretation: line,
         reflection,
         luckyNumber,
@@ -1249,13 +1357,14 @@
         `Stability: ${r.stability}%`,
         `Balance: ${r.yinCount} Yin / ${r.yangCount} Yang`,
         r.changeLine ? `Change Line: ${r.changeLine}` : "Change Line: None",
+        r.relatingHexagram ? `Relating Hexagram: ${r.relatingHexagram}` : null,
         `Lucky Number: ${r.luckyNumber}`,
         `Lucky Color: ${r.luckyColor}`,
         `Active Element: ${r.activeElement}`,
         `Best Time Block: ${r.bestTimeBlock}`,
         `Interpretation: ${r.interpretation}`,
         `Reflection: ${r.reflection}`
-      ].join("\n");
+      ].filter(Boolean).join("\n");
 
       if (navigator.share) {
         try {
@@ -1294,7 +1403,8 @@
 
     function flipLine(lines, lineNumber) {
       const copy = lines.slice();
-      const indexFromTop = lineNumber - 1;
+      // Line 1 is the bottom; lines array is top-down, so map from the bottom.
+      const indexFromTop = lines.length - lineNumber;
       copy[indexFromTop] = !copy[indexFromTop];
       return copy;
     }
@@ -1306,7 +1416,8 @@
         const line = document.createElement("div");
         line.className = "hex-line";
 
-        if (changeLine === idx + 1) {
+        // Lines are numbered 1 (bottom) to 6 (top); idx 0 is the top line.
+        if (changeLine === lines.length - idx) {
           line.classList.add("line-changing");
         }
 
@@ -1328,6 +1439,46 @@
           line.classList.add("show");
         }, idx * 70);
       });
+    }
+
+    function linesKey(lines) {
+      return lines.map((b) => (b ? "1" : "0")).join("");
+    }
+
+    function renderMiniHex(container, lines, hotLine, morph) {
+      container.innerHTML = "";
+      lines.forEach((isYang, idx) => {
+        const line = document.createElement("div");
+        line.className = "mini-line";
+        const lineNo = lines.length - idx;
+        if (hotLine === lineNo) line.classList.add("hot");
+        if (morph && hotLine === lineNo) line.classList.add("morph");
+        if (isYang) {
+          const s = document.createElement("span");
+          s.className = "m-solid";
+          line.appendChild(s);
+        } else {
+          const l = document.createElement("span");
+          l.className = "m-broken-l";
+          const r = document.createElement("span");
+          r.className = "m-broken-r";
+          line.append(l, r);
+        }
+        container.appendChild(line);
+      });
+    }
+
+    function renderTransformation(lines, relatingLines, changeLine, relatingNumber) {
+      if (!relatingLines) {
+        transformRow.hidden = true;
+        return;
+      }
+      transformRow.hidden = false;
+      renderMiniHex(miniPresent, lines, changeLine, false);
+      renderMiniHex(miniRelating, relatingLines, changeLine, true);
+      const meta = hexMeta[relatingNumber - 1];
+      const name = hexagrams[relatingNumber - 1][0];
+      relatingNameEl.textContent = `${meta.hz} ${name}`;
     }
 
     function trigramFor(bottom, middle, top) {
