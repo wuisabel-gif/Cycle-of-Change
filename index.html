@@ -1534,13 +1534,13 @@
         const h = MUSIC_NOTES[Math.floor(Math.random() * MUSIC_NOTES.length)];
         pluck(h, audio.musicBus, { amp: 0.3, decay: 0.9985, dur: 2.6, when: audio.ctx.currentTime + 0.18 });
       }
-      audio.musicTimer = setTimeout(scheduleMusic, 850 + Math.random() * 1500);
+      audio.musicTimer = setTimeout(scheduleMusic, 700 + Math.random() * 1200);
     }
 
     function startMusic() {
       if (!ensureAudio() || audio.musicTimer) return;
       audio.musicBus.gain.cancelScheduledValues(audio.ctx.currentTime);
-      audio.musicBus.gain.setTargetAtTime(0.12, audio.ctx.currentTime, 1.2);
+      audio.musicBus.gain.setTargetAtTime(0.16, audio.ctx.currentTime, 1.0);
       scheduleMusic();
     }
 
@@ -1570,13 +1570,24 @@
       });
     });
 
-    // Sound is on by default; it actually starts on the first user gesture (autoplay policy).
+    // Sound is on by default. Browsers require a user gesture before audio can play,
+    // so the actual sound lights up on the first interaction of any kind.
     const soundOnByDefault = localStorage.getItem("coc_sound") !== "off";
+    audio.on = soundOnByDefault;
     soundToggle.classList.toggle("off", !soundOnByDefault);
     soundToggle.setAttribute("aria-pressed", String(soundOnByDefault));
+
+    function kickstartAudio() {
+      if (!audio.on || audio.musicTimer) return;
+      if (ensureAudio()) startMusic();
+    }
     if (soundOnByDefault) {
-      const resume = () => { setSound(true); window.removeEventListener("pointerdown", resume); };
-      window.addEventListener("pointerdown", resume, { once: true });
+      const gestures = ["pointerdown", "touchstart", "keydown", "click"];
+      const start = () => {
+        gestures.forEach((g) => window.removeEventListener(g, start));
+        kickstartAudio();
+      };
+      gestures.forEach((g) => window.addEventListener(g, start, { once: true }));
     }
 
     updateStreakLabel();
