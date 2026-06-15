@@ -1570,8 +1570,11 @@
       });
     });
 
-    // Restore a saved "on" preference on the first user gesture (autoplay policy).
-    if (localStorage.getItem("coc_sound") === "on") {
+    // Sound is on by default; it actually starts on the first user gesture (autoplay policy).
+    const soundOnByDefault = localStorage.getItem("coc_sound") !== "off";
+    soundToggle.classList.toggle("off", !soundOnByDefault);
+    soundToggle.setAttribute("aria-pressed", String(soundOnByDefault));
+    if (soundOnByDefault) {
       const resume = () => { setSound(true); window.removeEventListener("pointerdown", resume); };
       window.addEventListener("pointerdown", resume, { once: true });
     }
